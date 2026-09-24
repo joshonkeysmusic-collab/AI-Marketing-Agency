@@ -1,0 +1,77 @@
+{
+  "week": "2026-09-28",
+  "version": 2,
+  "source": "posts/week-2026-09-28.md",
+  "strategy": "strategy/gap-analysis-2026-09-28.md",
+  "asset_plans": "assets/asset-plans-week-2026-09-28.md",
+  "account": "Josh Forkwa (Chrome: Linkedin Agent)",
+  "timezone": "Europe/London",
+  "posts": [
+    {
+      "id": "2026-09-28-mon",
+      "slot": "2026-09-28T08:00:00+01:00",
+      "gap": "G1",
+      "theme": "T1",
+      "type": "teaching",
+      "format": "diagram",
+      "hook": "In most growing businesses, the real CRM is WhatsApp.",
+      "asset": "assets/2026-09-28-whatsapp-crm.png",
+      "status": "ready_to_schedule",
+      "blockers": [],
+      "owner_go_ahead": null
+    },
+    {
+      "id": "2026-09-29-tue",
+      "slot": "2026-09-29T09:30:00+01:00",
+      "gap": "G4",
+      "theme": "T2",
+      "type": "case_study",
+      "format": "diagram",
+      "hook": "I'm building a team of AI agents to run my LinkedIn.",
+      "asset": "assets/2026-09-29-pipeline-diagram.png",
+      "status": "ready_to_schedule",
+      "blockers": [],
+      "owner_go_ahead": null
+    },
+    {
+      "id": "2026-09-30-wed",
+      "slot": "2026-09-30T08:30:00+01:00",
+      "gap": "G2",
+      "theme": "T4",
+      "type": "teaching",
+      "format": "carousel",
+      "hook": "Everyone says automation \"saves time\".",
+      "asset": "assets/2026-09-30-manual-work-cost.pdf",
+      "status": "content_approved",
+      "blockers": [
+        "Headshot file needed for carousel slide 9 (currently 'JF' placeholder)"
+      ],
+      "owner_go_ahead": null
+    },
+    {
+      "id": "2026-10-01-thu",
+      "slot": "2026-10-01T09:30:00+01:00",
+      "gap": "G3",
+      "theme": "T2",
+      "type": "opinion",
+      "format": "diagram",
+      "hook": "The most important part of my AI agent system isn't the AI.",
+      "asset": "assets/2026-10-01-approval-gate.png",
+      "status": "ready_to_schedule",
+      "blockers": [],
+      "owner_go_ahead": null
+    }
+  ],
+  "network_growth": {
+    "status": "batch-02 (Dubai) sent 2026-09-23: 10 invites + 2 comments",
+    "plan": "about 10 connection requests + 3 comments per weekday, drafted by the Creator Agent, each batch approved by the owner",
+    "target": "150+ relevant connections by 2026-10-31",
+    "batch_01": "network/batch-01-2026-09-23.md",
+    "batch_02": "network/batch-02-2026-09-23-dubai.md",
+    "target_markets": [
+      "UK",
+      "Europe",
+      "USA"
+    ]
+  }
+}

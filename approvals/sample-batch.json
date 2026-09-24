@@ -1,0 +1,20 @@
+{
+  "batch_id": "test-ai-workplace",
+  "title": "Test batch: AI in the workplace",
+  "items": [
+    {
+      "id": "p1",
+      "type": "post",
+      "target": "Post · Variant B (locked PDF)",
+      "text": "Most companies are asking \"which AI tool should we use?\"\n\nThat's the wrong first question.\n\n(full text in assets/ai-workplace/post.md)\n\nComment \"WORKFLOW\" and I'll send you the 3-page guide.",
+      "image": "../assets/ai-workplace/ai-workplace-infographic.png"
+    },
+    {
+      "id": "c1",
+      "type": "comment",
+      "target": "Example · founder post about scaling",
+      "text": "We hit this exact wall with a med spa client. Bookings were fine; follow-ups after the consultation were where revenue quietly leaked.",
+      "image": null
+    }
+  ]
+}

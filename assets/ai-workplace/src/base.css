@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=block');
+:root {
+  --bg: #0B0F14; --surface: #141B24; --raise: #1A2330; --border: #243040;
+  --text: #F2F5F8; --muted: #8A97A6;
+  --auto: #19E6A1; --assist: #6FA0FF; --human: #FFB547;
+  --display: 'Bricolage Grotesque', 'Segoe UI', sans-serif;
+  --body: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); font-family: var(--body); }
+.page { position: relative; width: 1080px; height: 1350px; padding: 96px 84px 110px; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+.kicker { font: 700 22px var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+h1, h2 { font-family: var(--display); font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
+.foot { position: absolute; left: 84px; right: 84px; bottom: 50px; display: flex; justify-content: space-between; font-size: 22px; color: var(--muted); }
+.foot b { color: var(--text); font-weight: 600; }
+.c-auto { color: var(--auto); } .c-assist { color: var(--assist); } .c-human { color: var(--human); }

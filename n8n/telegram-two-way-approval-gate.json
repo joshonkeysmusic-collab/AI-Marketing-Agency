@@ -1,0 +1,186 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "approval-request",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Approval Request (from Claude)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "approval-request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalise the request from Claude: {batch_id, item_id, type, target, text, media_url?, media_type?}\nconst b = $json.body || $json;\nconst label = {post:'📝 Post', comment:'💬 Comment', reply:'↩️ Reply', dm:'✉️ DM', connect:'🤝 Connection request', lead:'📄 PDF delivery'}[b.type] || b.type;\nconst head = [label, b.target].filter(Boolean).join(' · ');\nreturn [{ json: {\n  batch_id: b.batch_id, item_id: b.item_id,\n  message: `${head}\\n\\n${b.text || ''}`.slice(0, 1000),\n  media_url: b.media_url || '',\n  media_type: b.media_type || (b.media_url ? 'photo' : 'none'),\n  approve: `a|${b.batch_id}|${b.item_id}`,\n  reject: `r|${b.batch_id}|${b.item_id}`\n}}];"
+      },
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Build Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  { "leftValue": "={{ $json.media_type }}", "rightValue": "video", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "video"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  { "leftValue": "={{ $json.media_type }}", "rightValue": "photo", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "photo"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra", "renameFallbackOutput": "text" }
+      },
+      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "name": "Media Type?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "7406832850",
+        "file": "={{ $json.media_url }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": { "rows": [ { "row": { "buttons": [
+          { "text": "✅ Approve to Post", "additionalFields": { "callback_data": "={{ $json.approve }}" } },
+          { "text": "❌ Reject", "additionalFields": { "callback_data": "={{ $json.reject }}" } }
+        ] } } ] },
+        "additionalFields": { "caption": "={{ $json.message }}" }
+      },
+      "id": "a1b2c3d4-0004-4000-8000-000000000004",
+      "name": "Send Video for Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [680, -200]
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "7406832850",
+        "file": "={{ $json.media_url }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": { "rows": [ { "row": { "buttons": [
+          { "text": "✅ Approve to Post", "additionalFields": { "callback_data": "={{ $json.approve }}" } },
+          { "text": "❌ Reject", "additionalFields": { "callback_data": "={{ $json.reject }}" } }
+        ] } } ] },
+        "additionalFields": { "caption": "={{ $json.message }}" }
+      },
+      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "name": "Send Photo for Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [680, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "7406832850",
+        "text": "={{ $json.message }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": { "rows": [ { "row": { "buttons": [
+          { "text": "✅ Approve to Post", "additionalFields": { "callback_data": "={{ $json.approve }}" } },
+          { "text": "❌ Reject", "additionalFields": { "callback_data": "={{ $json.reject }}" } }
+        ] } } ] },
+        "additionalFields": { "appendAttribution": false }
+      },
+      "id": "a1b2c3d4-0006-4000-8000-000000000006",
+      "name": "Send Text for Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "updates": ["callback_query"],
+        "additionalFields": {}
+      },
+      "id": "a1b2c3d4-0007-4000-8000-000000000007",
+      "name": "Button Tapped (Telegram)",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [0, 500],
+      "webhookId": "telegram-approval-callbacks"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Only Josh's chat may approve. Record the decision for Claude to collect.\nconst q = $json.callback_query;\nif (!q || q.from.id !== 7406832850) return [];\nconst [a, batch_id, item_id] = (q.data || '').split('|');\nconst decision = a === 'a' ? 'approved' : a === 'r' ? 'rejected' : 'unknown';\nconst store = $getWorkflowStaticData('global');\nstore.decisions = store.decisions || [];\nstore.decisions.push({ batch_id, item_id, decision, at: new Date().toISOString() });\nreturn [{ json: { query_id: q.id, decision, batch_id, item_id,\n  toast: decision === 'approved' ? '✅ Approved' : '❌ Rejected' } }];"
+      },
+      "id": "a1b2c3d4-0008-4000-8000-000000000008",
+      "name": "Record Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 500]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.query_id }}",
+        "additionalFields": { "text": "={{ $json.toast }}" }
+      },
+      "id": "a1b2c3d4-0009-4000-8000-000000000009",
+      "name": "Confirm Tap",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [440, 500]
+    },
+    {
+      "parameters": {
+        "path": "approval-decisions",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0010-4000-8000-000000000010",
+      "name": "Claude Collects Decisions",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 800],
+      "webhookId": "approval-decisions"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Hand over all recorded decisions and clear them.\nconst store = $getWorkflowStaticData('global');\nconst decisions = store.decisions || [];\nstore.decisions = [];\nreturn [{ json: { decisions } }];"
+      },
+      "id": "a1b2c3d4-0011-4000-8000-000000000011",
+      "name": "Return & Clear Decisions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 800]
+    }
+  ],
+  "connections": {
+    "Approval Request (from Claude)": { "main": [ [ { "node": "Build Message", "type": "main", "index": 0 } ] ] },
+    "Build Message": { "main": [ [ { "node": "Media Type?", "type": "main", "index": 0 } ] ] },
+    "Media Type?": { "main": [
+      [ { "node": "Send Video for Approval", "type": "main", "index": 0 } ],
+      [ { "node": "Send Photo for Approval", "type": "main", "index": 0 } ],
+      [ { "node": "Send Text for Approval", "type": "main", "index": 0 } ]
+    ] },
+    "Button Tapped (Telegram)": { "main": [ [ { "node": "Record Decision", "type": "main", "index": 0 } ] ] },
+    "Record Decision": { "main": [ [ { "node": "Confirm Tap", "type": "main", "index": 0 } ] ] },
+    "Claude Collects Decisions": { "main": [ [ { "node": "Return & Clear Decisions", "type": "main", "index": 0 } ] ] }
+  }
+}

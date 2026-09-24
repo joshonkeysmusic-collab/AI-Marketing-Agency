@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="brand.css">
+<style>
+  .chip { white-space: nowrap; } .frame { padding-top: 80px; }
+  .stack { margin-top: 36px; position: relative; padding-right: 150px; }
+  .agent { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 18px 26px; }
+  .agent .num { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 22px; margin-bottom: 6px; }
+  .agent .label { font-size: 32px; }
+  .agent .desc { font-size: 24px; }
+  .agent .chips { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .arrow { height: 40px; } .arrow svg { height: 40px; }
+  .loop { position: absolute; right: 0; top: 0; width: 150px; height: 100%; }
+  .gate { font-size: 30px !important; padding: 16px !important; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 18px; border: 3px solid var(--warn); border-radius: 16px; padding: 20px; font-family: 'Space Grotesk'; font-weight: 700; font-size: 32px; color: var(--warn); }
+  .publish { text-align: center; padding: 14px; font-family: 'JetBrains Mono'; font-weight: 700; font-size: 28px; }
+  .fb { font-family: 'JetBrains Mono', monospace; font-size: 19px; color: var(--accent2); }
+</style></head><body><div class="frame">
+  <h1>My 3-agent<br><span class="a">LinkedIn pipeline</span></h1>
+  <div class="sub">Specialised agents, clear boundaries.</div>
+
+  <div class="stack">
+    <div class="node agent" id="n1"><div><div class="num">01</div><div class="label mono">UI/UX Agent</div><div class="desc">Owns the rules: brand, voice, visuals, formats</div></div><div class="chips"><span class="chip">brand-tokens.json</span></div></div>
+    <div class="arrow"><svg viewBox="0 0 30 56"><line x1="15" y1="0" x2="15" y2="46" stroke="#19E6A1" stroke-width="3"/><path d="M7 42 L15 54 L23 42" fill="none" stroke="#19E6A1" stroke-width="3"/></svg></div>
+    <div class="node agent hot" id="n2"><div><div class="num">02</div><div class="label mono">Creator Agent</div><div class="desc">Finds market gaps, drafts posts + visuals</div></div><div class="chips"><span class="chip">strategy/</span><span class="chip">posts/</span></div></div>
+    <div class="arrow"><svg viewBox="0 0 30 56"><line x1="15" y1="0" x2="15" y2="46" stroke="#19E6A1" stroke-width="3"/><path d="M7 42 L15 54 L23 42" fill="none" stroke="#19E6A1" stroke-width="3"/></svg></div>
+    <div class="node agent" id="n3"><div><div class="num">03</div><div class="label mono">Scheduler &amp; Analytics</div><div class="desc">Queues posts, measures what works</div></div><div class="chips"><span class="chip">queue/</span><span class="chip">analytics/</span></div></div>
+    <svg class="loop" viewBox="0 0 150 600" preserveAspectRatio="none">
+      <path d="M0 520 H90 Q120 520 120 490 V320 Q120 290 90 290 H14" fill="none" stroke="#4C8DFF" stroke-width="3" stroke-dasharray="10 8"/>
+      <path d="M26 280 L10 290 L26 300" fill="none" stroke="#4C8DFF" stroke-width="3"/>
+    </svg>
+  </div>
+  <div class="fb" style="text-align:right; margin-top:6px">↑ performance data feeds back to the Creator</div>
+
+  <div class="arrow" style="margin-top:6px"><svg viewBox="0 0 30 56"><line x1="15" y1="0" x2="15" y2="46" stroke="#19E6A1" stroke-width="3"/><path d="M7 42 L15 54 L23 42" fill="none" stroke="#19E6A1" stroke-width="3"/></svg></div>
+  <div class="gate">⛨ Owner approval: nothing goes live without it</div>
+  <div class="arrow"><svg viewBox="0 0 30 56"><line x1="15" y1="0" x2="15" y2="46" stroke="#19E6A1" stroke-width="3"/><path d="M7 42 L15 54 L23 42" fill="none" stroke="#19E6A1" stroke-width="3"/></svg></div>
+  <div class="node publish">Publish</div>
+
+  <div class="handle">Josh Forkwa · AI agents &amp; automation</div>
+</div></body></html>

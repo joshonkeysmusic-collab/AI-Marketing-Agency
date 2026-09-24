@@ -1,0 +1,245 @@
+{
+  "version": "1.0",
+  "updated": "2026-09-23",
+  "owner": "Josh Forkwa",
+  "brand": {
+    "positioning": "I turn manual business processes into AI systems that run themselves.",
+    "goals": [
+      "client_leads_high_value",
+      "authority_ai_automation"
+    ],
+    "audience": [
+      "business_founders",
+      "sme_owners",
+      "operations_leads"
+    ],
+    "personality": [
+      "practical",
+      "expert",
+      "bold"
+    ],
+    "credentials": [
+      "AI Automation & Agentic Systems Specialist (Githaf Consulting, freelance, 2024–present)",
+      "Digital & Operations Manager, XCAPE (2022–2023)",
+      "Builds: med spa AI CRM + WhatsApp follow-up; AI skin-analysis recommendation engine; VAPI voice/chat agents; AI dashboards; AI lead gen; Fleet Nigeria; Creator Lense; Bottomline"
+    ],
+    "secondary_theme": {
+      "name": "financial_freedom_with_ai",
+      "max_share": 0.125
+    },
+    "positioning_long": "I help growth businesses in the UK, Europe and the USA automate their operations with AI agents and workflows, so they can save time, scale efficiently and drive revenue.",
+    "off_brand_tracks": [
+      "contract_job_hunting"
+    ],
+    "title": "AI Automation & Agentic Systems Specialist",
+    "proof_source": "strategy/proof-library.md",
+    "priority_verticals": [
+      "clinics_medspa_wellness",
+      "real_estate_rentals",
+      "logistics_mobility"
+    ],
+    "target_markets": [
+      "UK",
+      "Europe",
+      "USA"
+    ],
+    "based_in": [
+      "Dubai",
+      "London"
+    ]
+  },
+  "message": {
+    "themes": {
+      "T1": "AI automation how-tos",
+      "T2": "Multi-agent architecture",
+      "T3": "n8n workflows",
+      "T4": "Business case studies / ROI of AI",
+      "T5": "Lessons from building",
+      "T6": "Voice & chat agents",
+      "T7": "AI dashboards & decision systems"
+    },
+    "post_mix": {
+      "teaching": 0.4,
+      "case_study": 0.25,
+      "opinion": 0.2,
+      "offer": 0.15
+    },
+    "voice": {
+      "person": "first",
+      "locale": "en-GB",
+      "tone": "professional_accessible"
+    },
+    "forbidden": [
+      "politics",
+      "unverified_claims",
+      "confidential_client_data",
+      "income_promises",
+      "financial_advice",
+      "disparaging_named_parties"
+    ],
+    "cta": {
+      "per_post": 1,
+      "dm_keyword_default": "WORKFLOW",
+      "library": {
+        "dm": "DM me \"WORKFLOW\" and I'll show you what I'd automate first in your business.",
+        "comment_to_get": "Comment \"WORKFLOW\" and I'll send you the full {asset}.",
+        "follow": "Follow Josh Forkwa for more AI automation breakdowns.",
+        "save": "Save this for your next \"should we automate this?\" conversation."
+      },
+      "rules": {
+        "comment_to_get_requires_locked_asset": true,
+        "campaign_keyword_allowed": true,
+        "lead_magnet_dm_requires_owner_approval": true
+      }
+    },
+    "hook_max_chars": 210
+  },
+  "visual": {
+    "colors": {
+      "bg": "#0B0F14",
+      "surface": "#141B24",
+      "border": "#243040",
+      "text": "#F2F5F8",
+      "text_muted": "#8A97A6",
+      "accent": "#19E6A1",
+      "accent_2": "#4C8DFF",
+      "warn": "#FFB547"
+    },
+    "accent_max_coverage": 0.1,
+    "fonts": {
+      "heading": {
+        "family": "Space Grotesk",
+        "weight": 700,
+        "canva_fallback": "Montserrat"
+      },
+      "body": {
+        "family": "Inter",
+        "weight": [
+          400,
+          500
+        ],
+        "canva_fallback": "Open Sans"
+      },
+      "mono": {
+        "family": "JetBrains Mono",
+        "weight": 500,
+        "canva_fallback": "Space Mono"
+      }
+    },
+    "carousel_type_px": {
+      "h1": [
+        72,
+        88
+      ],
+      "h2": [
+        48,
+        56
+      ],
+      "body": [
+        32,
+        36
+      ],
+      "label": 24
+    },
+    "face": {
+      "banner": true,
+      "carousel": "final_slide_only",
+      "teaching_posts": false
+    },
+    "banned_imagery": [
+      "glowing_brains",
+      "humanoid_robots",
+      "binary_rain"
+    ]
+  },
+  "display": {
+    "formats": {
+      "text_post": {
+        "max_chars": 3000,
+        "target_chars": [
+          900,
+          1500
+        ]
+      },
+      "carousel_pdf": {
+        "width": 1080,
+        "height": 1350,
+        "slides": [
+          6,
+          10
+        ],
+        "max_words_per_slide": 25
+      },
+      "diagram": {
+        "sizes": [
+          [
+            1080,
+            1350
+          ],
+          [
+            1200,
+            627
+          ]
+        ],
+        "max_nodes": 7
+      },
+      "banner": {
+        "width": 1584,
+        "height": 396
+      }
+    },
+    "cadence": {
+      "mode": "set_by_creator_strategic_loop",
+      "posts_per_week_range": [
+        2,
+        5
+      ],
+      "timezone": "Europe/London",
+      "default_slots": [
+        "Mon 08:30",
+        "Tue 09:00",
+        "Wed 08:30",
+        "Thu 09:00"
+      ],
+      "changes_reported_to_owner": true,
+      "windows_uk_time": {
+        "uk_europe_morning": [
+          "07:30",
+          "10:00"
+        ],
+        "us_east_morning": [
+          "13:00",
+          "15:00"
+        ]
+      }
+    },
+    "emoji_max": 3,
+    "hashtags": {
+      "min": 3,
+      "max": 5,
+      "pool": [
+        "#AIAutomation",
+        "#AIAgents",
+        "#n8n",
+        "#BusinessAutomation",
+        "#WorkflowAutomation",
+        "#DigitalTransformation",
+        "#SMEGrowth",
+        "#MultiAgentSystems",
+        "#NoCode",
+        "#VoiceAI",
+        "#HealthTech",
+        "#MedSpa"
+      ]
+    },
+    "profile": {
+      "headline": "I help businesses automate operations with AI agents & workflows | Digital Systems & Automation Lead @ Digital Core Systems | n8n · MCP · Multi-agent builds",
+      "headline_max_chars": 220,
+      "about_max_chars": 2600
+    }
+  },
+  "publishing": {
+    "requires_owner_approval": true,
+    "status_on_handoff": "awaiting_owner_approval"
+  }
+}

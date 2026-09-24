@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="brand.css">
+<style>
+  h1 { font-size: 62px; } .sub { margin-top: 12px; }
+  .before { margin-top: 30px; border: 2px dashed var(--warn); border-radius: 16px; padding: 22px 26px; opacity: .92; }
+  .before .tag { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--warn); letter-spacing: 2px; }
+  .phones { display: flex; gap: 18px; margin-top: 14px; }
+  .phone { flex: 1; background: #10151C; border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 14px; font-size: 20px; color: var(--muted); }
+  .phone b { display: block; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 19px; margin-bottom: 6px; }
+  .bubble { display: block; background: #1A222D; border-radius: 10px; padding: 4px 10px; margin-top: 6px; font-size: 18px; }
+  .loss { margin-top: 14px; font-size: 24px; color: var(--warn); font-weight: 600; }
+  .after-tag { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: var(--accent); letter-spacing: 2px; margin: 24px 0 10px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 24px; }
+  .row .label { font-size: 26px; }
+  .row .desc { margin-top: 0; font-size: 21px; text-align: right; }
+  .chips { display: flex; gap: 10px; margin-top: 12px; }
+  .split { display: flex; gap: 18px; }
+  .split .node { flex: 1; padding: 12px 22px; }
+  .arrow { height: 26px; } .arrow svg { height: 26px; }
+  .foot { font-size: 32px; padding-top: 18px; }
+</style></head><body><div class="frame">
+  <h1>Your CRM is already <span class="a">WhatsApp.</span></h1>
+  <div class="sub">Here's how to give it a memory.</div>
+
+  <div class="before">
+    <div class="tag">TODAY</div>
+    <div class="phones">
+      <div class="phone"><b>Staff phone 1</b><span class="bubble">"Is this still available?"</span><span class="bubble">"I'll check and revert"</span></div>
+      <div class="phone"><b>Staff phone 2</b><span class="bubble">"Confirming 3 units"</span><span class="bubble">Order in a chat</span></div>
+      <div class="phone"><b>Staff phone 3</b><span class="bubble">"I already sent this"</span><span class="bubble">Follow-up forgotten</span></div>
+    </div>
+    <div class="loss">Lost orders · Forgotten follow-ups · Knowledge in people's heads</div>
+  </div>
+
+  <div class="after-tag">AUTOMATED AROUND IT</div>
+  <div class="node row"><span class="label mono">WhatsApp Business number</span><span class="desc">every message, one place</span></div>
+  <div class="arrow"><svg viewBox="0 0 30 34"><line x1="15" y1="0" x2="15" y2="26" stroke="#19E6A1" stroke-width="3"/><path d="M7 22 L15 32 L23 22" fill="none" stroke="#19E6A1" stroke-width="3"/></svg></div>
+  <div class="node row"><span class="label mono">n8n: capture</span><span class="desc">contact · message · timestamp</span></div>
+  <div class="arrow"><svg viewBox="0 0 30 34"><line x1="15" y1="0" x2="15" y2="26" stroke="#19E6A1" stroke-width="3"/><path d="M7 22 L15 32 L23 22" fill="none" stroke="#19E6A1" stroke-width="3"/></svg></div>
+  <div class="node hot" style="padding:12px 24px">
+    <div class="label mono">AI agent: tag intent</div>
+    <div class="chips"><span class="chip a">enquiry</span><span class="chip a">order</span><span class="chip a">complaint</span><span class="chip a">follow-up</span></div>
+  </div>
+  <div class="arrow"><svg viewBox="0 0 30 34"><line x1="15" y1="0" x2="15" y2="26" stroke="#19E6A1" stroke-width="3"/><path d="M7 22 L15 32 L23 22" fill="none" stroke="#19E6A1" stroke-width="3"/></svg></div>
+  <div class="split">
+    <div class="node"><div class="label mono">CRM record</div><div class="desc">updates itself</div></div>
+    <div class="node"><div class="label mono">Task → right person</div><div class="desc">nothing falls through</div></div>
+  </div>
+  <div class="arrow"><svg viewBox="0 0 30 34"><line x1="15" y1="0" x2="15" y2="26" stroke="#19E6A1" stroke-width="3"/><path d="M7 22 L15 32 L23 22" fill="none" stroke="#19E6A1" stroke-width="3"/></svg></div>
+  <div class="node row"><span class="label mono">Shared inbox</span><span class="desc">not personal phones</span></div>
+
+  <div class="foot">Customers change nothing. <span class="a">The business remembers.</span></div>
+  <div class="handle">Josh Forkwa · AI agents &amp; automation</div>
+</div></body></html>

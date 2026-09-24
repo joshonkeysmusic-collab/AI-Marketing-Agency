@@ -1,0 +1,25 @@
+# --- Secrets & live state (never commit) ---
+# telegram.json holds the chat id and n8n webhook URLs:
+# anyone with those can push items into the approval flow.
+approvals/telegram.json
+approvals/state.json
+approvals/batches/
+*.env
+*.token
+
+# --- Third-party personal data ---
+# Names and LinkedIn profiles of real people.
+leads/*.csv
+
+# --- Large / raw media ---
+assets/video-inbox/
+assets/**/preview/
+*.mp4
+*.mov
+*.MOV
+
+# --- Local noise ---
+__pycache__/
+*.pyc
+Thumbs.db
+desktop.ini

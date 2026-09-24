@@ -1,0 +1,122 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="brand.css">
+<style>
+  @page { size: 1080px 1350px; margin: 0; }
+  html, body { height: auto; overflow: visible; }
+  .frame { page-break-after: always; break-after: page; overflow: hidden; justify-content: center; }
+  .frame:last-child { page-break-after: auto; break-after: auto; }
+  h1 { font-size: 88px; }
+  h2 { font-family: 'Space Grotesk'; font-weight: 700; font-size: 60px; line-height: 1.1; letter-spacing: -1px; }
+  .step { font-family: 'JetBrains Mono'; font-weight: 700; font-size: 28px; color: var(--accent); letter-spacing: 3px; margin-bottom: 24px; }
+  .body { font-size: 36px; line-height: 1.45; margin-top: 34px; color: var(--text); }
+  .body .m { color: var(--muted); }
+  .formula { margin-top: 50px; padding: 36px 34px; font-family: 'JetBrains Mono'; font-size: 34px; line-height: 1.6; }
+  .formula .r { color: var(--accent); font-weight: 700; }
+  .field { margin-top: 50px; padding: 40px 34px; font-family: 'JetBrains Mono'; font-size: 40px; }
+  .field .blank { display: inline-block; width: 260px; border-bottom: 4px solid var(--accent); }
+  .quote { margin-top: 50px; border: 3px solid var(--warn); border-radius: 24px; padding: 34px 38px; font-family: 'Space Grotesk'; font-size: 48px; font-weight: 700; color: var(--warn); }
+  .quote s { text-decoration-thickness: 5px; }
+  .hidden { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 44px; }
+  .hidden .node { border-color: var(--warn); font-size: 30px; padding: 28px; }
+  .hidden .node b { display: block; font-family: 'JetBrains Mono'; color: var(--warn); font-size: 26px; margin-bottom: 6px; }
+  .exlabel { position: absolute; right: 80px; top: 44px; font-family: 'JetBrains Mono'; font-size: 20px; color: var(--muted); letter-spacing: 2px; }
+  .calc { margin-top: 36px; }
+  .calc .line { display: flex; justify-content: space-between; font-family: 'JetBrains Mono'; font-size: 30px; padding: 20px 0; border-bottom: 2px solid var(--border); }
+  .calc .line span:last-child { color: var(--accent); font-weight: 700; }
+  .big { font-family: 'Space Grotesk'; font-weight: 700; font-size: 44px; margin-top: 40px; line-height: 1.25; }
+  .face { width: 280px; height: 280px; border-radius: 50%; border: 4px solid var(--accent); background: var(--surface); display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk'; font-weight: 700; font-size: 96px; color: var(--muted); margin-bottom: 50px; overflow: hidden; }
+  .face img { width: 100%; height: 100%; object-fit: cover; }
+  .cta { display: inline-block; margin-top: 44px; background: var(--accent); color: var(--bg); font-family: 'JetBrains Mono'; font-weight: 700; font-size: 34px; padding: 22px 34px; border-radius: 14px; }
+  .swipe { position: absolute; right: 80px; bottom: 100px; font-family: 'JetBrains Mono'; font-size: 26px; color: var(--accent); }
+</style></head><body>
+
+<!-- 1 -->
+<div class="frame">
+  <h1>What is manual work actually <span class="a">costing you?</span></h1>
+  <div class="sub" style="font-size:40px; margin-top:40px">A 4-step worksheet to put a number on it before you automate anything.</div>
+  <div class="swipe">swipe →</div>
+  <div class="handle">Josh Forkwa</div><div class="pageno">1/9</div>
+</div>
+
+<!-- 2 -->
+<div class="frame">
+  <h2>"It saves time" never gets a budget approved.</h2>
+  <div class="quote">"Automation <s>saves time</s>"</div>
+  <div class="body">Finance doesn't fund feelings.<br>It funds <span class="a">a number</span>, and a date it pays back.<br><br><span class="m">Here's how to get both, for one task, in 10 minutes.</span></div>
+  <div class="handle">Josh Forkwa</div><div class="pageno">2/9</div>
+</div>
+
+<!-- 3 -->
+<div class="frame">
+  <div class="step">STEP 1</div>
+  <h2>Pick one repeated task.</h2>
+  <div class="body">Invoices. Enquiry replies. Weekly reports. Data entry.<br><span class="m">How many times a week does it happen?</span></div>
+  <div class="node field">Frequency / week = <span class="blank"></span></div>
+  <div class="handle">Josh Forkwa</div><div class="pageno">3/9</div>
+</div>
+
+<!-- 4 -->
+<div class="frame">
+  <div class="step">STEP 2</div>
+  <h2>Time it.</h2>
+  <div class="body">Time a few real runs. Don't guess.</div>
+  <div class="node formula">minutes per task<br>× frequency per week<br>÷ 60<br>= <span class="r">hours per week</span></div>
+  <div class="handle">Josh Forkwa</div><div class="pageno">4/9</div>
+</div>
+
+<!-- 5 -->
+<div class="frame">
+  <div class="step">STEP 3</div>
+  <h2>Cost it.</h2>
+  <div class="body">Use the <span class="a">fully loaded</span> hourly cost: salary plus overheads, not just pay.</div>
+  <div class="node formula">hours per week<br>× loaded hourly cost<br>= <span class="r">weekly cost</span></div>
+  <div class="handle">Josh Forkwa</div><div class="pageno">5/9</div>
+</div>
+
+<!-- 6 -->
+<div class="frame">
+  <div class="step">STEP 4</div>
+  <h2>Add the hidden cost.</h2>
+  <div class="body">Time is only half the bill. Estimate these conservatively:</div>
+  <div class="hidden">
+    <div class="node"><b>ERRORS</b>Wrong data, wrong orders</div>
+    <div class="node"><b>REWORK</b>Fixing what went wrong</div>
+    <div class="node"><b>SLOW REPLIES</b>Customers who stop waiting</div>
+    <div class="node"><b>MISSED LEADS</b>Enquiries nobody followed up</div>
+  </div>
+  <div class="handle">Josh Forkwa</div><div class="pageno">6/9</div>
+</div>
+
+<!-- 7 -->
+<div class="frame">
+  <div class="exlabel">EXAMPLE · ILLUSTRATIVE FIGURES</div>
+  <div class="step">WORKED EXAMPLE</div>
+  <h2>Replying to enquiries by hand</h2>
+  <div class="calc">
+    <div class="line"><span>20 enquiries/day × 5 days</span><span>100 / week</span></div>
+    <div class="line"><span>100 × 6 min ÷ 60</span><span>10 hrs / week</span></div>
+    <div class="line"><span>10 hrs × 5,000 per hr</span><span>50,000 / week</span></div>
+  </div>
+  <div class="big">That's <span class="a">50,000 a week</span>, before a single lost sale.</div>
+  <div class="handle">Josh Forkwa</div><div class="pageno">7/9</div>
+</div>
+
+<!-- 8 -->
+<div class="frame">
+  <div class="step">THE DECISION</div>
+  <h2>Work out the payback.</h2>
+  <div class="node formula">build cost<br>÷ weekly cost saved<br>= <span class="r">weeks to pay back</span></div>
+  <div class="big">My rule of thumb: if an automation pays for itself in <span class="a">under ~12 weeks</span>, it's usually an easy yes.</div>
+  <div class="handle">Josh Forkwa</div><div class="pageno">8/9</div>
+</div>
+
+<!-- 9 -->
+<div class="frame" style="align-items:center; text-align:center">
+  <div class="face" id="face">JF</div>
+  <h2>Want me to run this on one of <span class="a">your</span> workflows?</h2>
+  <div class="cta">DM me "WORKFLOW"</div>
+  <div class="sub" style="margin-top:36px">Josh Forkwa · AI agents &amp; automation</div>
+  <div class="pageno">9/9</div>
+</div>
+
+<script>if(location.hash){var n=+location.hash.slice(1);document.querySelectorAll(".frame").forEach(function(f,i){if(i+1!==n)f.style.display="none";});}</script>
+</body></html>

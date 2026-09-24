@@ -1,0 +1,26 @@
+Most businesses don't have a growth problem. They have a manual-work problem.
+
+Leads sit unanswered. Reports get rebuilt by hand every week. Your best people spend hours copying data between tools that should already talk to each other.
+
+That's what I fix.
+
+I help businesses in Africa and globally automate their operations with AI agents and workflows, so they can save time, scale efficiently and drive revenue.
+
+How I do it:
+→ Custom CRM platforms and automated lead capture pipelines, so no enquiry slips through
+→ End-to-end workflows that connect customer data, messaging channels and backend systems
+→ AI agents that handle repeatable decisions — qualifying leads, triaging requests, drafting responses
+→ n8n workflows and MCP integrations that give AI safe, controlled access to the tools you already use
+→ Multi-agent systems where specialised agents work together, each with one clear job
+
+Who I work with:
+• Founders who want their time back
+• SME owners who need to do more without adding headcount
+• Operations leads tired of manual hand-offs
+
+Background:
+I'm the Digital Systems & Automation Lead at Digital Core Systems, where I design and build CRM, lead management and internal operations systems for high-growth businesses, and advise on technology stack selection and multi-channel revenue tracking. I trained at Tropics Development Research & Tech Institute and build hands-on with n8n, MCP and multi-agent systems — including the three-agent pipeline I'm using to run this LinkedIn account.
+
+Here I share practical build breakdowns: the workflows, the architecture and the lessons from what broke.
+
+Wondering what you could automate first in your business? DM me "WORKFLOW" and I'll show you.
