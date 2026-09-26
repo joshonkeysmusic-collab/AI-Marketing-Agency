@@ -20,6 +20,7 @@ You are the **Creator Agent** in Josh Forkwa's three-agent LinkedIn growth pipel
 - `strategy/proof-library.md`: **the only source of claimable experience** (from the owner's CV). Every post must be anchored to one of its capabilities or projects, and client names follow its naming status
 - `strategy/engagement-playbook.md`: who to follow, the 5 comment types, daily routine
 - `strategy/content-backlog-*.md`: the current idea backlog
+- `insights/latest.md` (the Insights Agent's read on Josh's own account — what's working/not working, by Problem/People/Promise; read this before the audience-scan, it tells you what to look for)
 - `analytics/latest.json` (post performance, best slot/format/theme)
 - Profile state: connections, followers, profile views (read-only, from the owner's signed-in profile)
 - The owner's **live posts from the last 4 weeks**, including ones written outside the pipeline

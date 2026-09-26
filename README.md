@@ -1,17 +1,18 @@
 # AI Marketing Agency — LinkedIn Growth Engine
 
-A four-agent system that researches, writes, schedules and engages on LinkedIn for Josh Forkwa (AI Automation Specialist). Nothing reaches LinkedIn without a human approval.
+A five-agent system that researches, writes, schedules and engages on LinkedIn for Josh Forkwa (AI Automation Specialist). Nothing reaches LinkedIn without a human approval.
 
 ## The agents
 
 | Agent | Job |
 |---|---|
 | **Research Analyst** | Scans followed and large (10k+) accounts, writes a weekly research brief |
+| **Insights Agent** | Studies Josh's *own* account performance (3Ps lens) — what to double down on, what to stop — and hands angles to the Research Analyst |
 | **Content Creator** | Turns each angle into a post (hook → body → CTA → hashtags) plus one visual |
 | **Posting Manager** | Posts now or schedules in the audience's active windows, then measures |
 | **Engagement Manager** | Comments, replies, connection requests and lead-magnet delivery |
 
-Full instructions: [`RUNBOOK.md`](RUNBOOK.md) · [`creator-agent.md`](creator-agent.md) · [`scheduler-agent.md`](scheduler-agent.md)
+Full instructions: [`RUNBOOK.md`](RUNBOOK.md) · [`creator-agent.md`](creator-agent.md) · [`scheduler-agent.md`](scheduler-agent.md) · [`insights-agent.md`](insights-agent.md)
 
 ## The approval gate
 
@@ -26,6 +27,7 @@ Every post, comment, DM and connection request is drafted, then sent to Telegram
 brand-guidelines.md      Brand rules: voice, palette, formats, CTA library
 brand-tokens.json        The same rules, machine-readable
 strategy/                Proof library (claimable experience), gap analyses, playbooks
+insights/                Weekly self-performance reports (3Ps lens) from the Insights Agent
 posts/                   Weekly drafts
 queue/                   What is scheduled, and its status
 assets/                  Rendered visuals + the HTML they are built from

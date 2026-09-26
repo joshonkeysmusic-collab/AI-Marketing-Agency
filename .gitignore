@@ -3,7 +3,15 @@
 # anyone with those can push items into the approval flow.
 approvals/telegram.json
 approvals/state.json
+approvals/inbox.json
+approvals/watch-state.json
+approvals/decisions-spill.json
+tenants/*/approval.local.json
+tenants/*/state/
+tenants/*/batches/
+tenants/*/linkedin_token.json
 approvals/batches/
+publish/linkedin_token.json
 *.env
 *.token
 

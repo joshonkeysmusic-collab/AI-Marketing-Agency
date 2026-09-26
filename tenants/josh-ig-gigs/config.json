@@ -1,0 +1,71 @@
+{
+  "tenant": "josh-ig-gigs",
+  "platform": "instagram",
+  "account_identity": "@joshonkeysmusic (Joshonkeys)",
+  "browser": "claude-builtin",
+  "persona": {
+    "targets": "People who book live music in the UAE: event planners, wedding coordinators, corporate event managers, hotel/restaurant entertainment and F&B managers, venue owners, community/expat event organisers",
+    "signals": [
+      "posts about upcoming events needing entertainment",
+      "wedding/corporate event planning content",
+      "venue promoting live nights",
+      "asks for band/musician recommendations",
+      "behind-the-scenes of event production"
+    ],
+    "regions": [
+      "Dubai",
+      "UAE",
+      "GCC"
+    ]
+  },
+  "discovery": {
+    "method": "leader-engagers",
+    "leaders_hint": "UAE event-industry accounts, wedding planner hubs, venue pages, corporate events agencies; engagers of Dubai entertainment bookers",
+    "fallback": "hashtag",
+    "notes": "IG variant: engager-scan of event-industry accounts; hashtag fallback (#dubaievents #dubaiwedding #uaeevents #corporateeventsdubai)."
+  },
+  "voice": {
+    "formula": "notice-value-question",
+    "banned": [
+      "corporate fluff",
+      "artificial praise",
+      "pitch walls",
+      "link drops"
+    ],
+    "words": [
+      10,
+      30
+    ],
+    "notes": "Musician-first, warm, casual; sparse tasteful emoji fits this brand (unlike LinkedIn tenant). Value beat = performance/production experience, not automation."
+  },
+  "proof_library": "tenants/josh-ig-gigs/proof.md",
+  "caps": {
+    "comments_day": 3,
+    "dms_day": 5,
+    "items_per_run": 2
+  },
+  "windows_local": [
+    "12:00-14:00",
+    "18:00-21:00"
+  ],
+  "approval": {
+    "bot_token_env": "TELEGRAM_BOT_TOKEN",
+    "batch_prefix": "ig-",
+    "notes": "Shares Josh's personal bot + n8n workflow with josh-linkedin. Batch ids MUST start with 'ig-'; the gateway's spill file routes taps to whichever tenant owns the batch.",
+    "chat_id": null,
+    "n8n_request_url": "in approval.local.json (gitignored)",
+    "n8n_decisions_url": "in approval.local.json (gitignored)"
+  },
+  "bot_token_env": "TELEGRAM_BOT_TOKEN",
+  "conf": "tenants/josh-ig-gigs/state/runtime.json",
+  "state": "tenants/josh-ig-gigs/state/state.json",
+  "inbox": "tenants/josh-ig-gigs/state/inbox.json",
+  "batches_dir": "tenants/josh-ig-gigs/batches",
+  "hard_rules": [
+    "Nothing posted, commented, DM'd or followed without the owner's tap in the Telegram gate",
+    "No invented performance claims; proof only from proof_library ([CONFIRM] items must be confirmed by Josh before use)",
+    "Official platform APIs only; never cookie/session automation",
+    "Windows are a hypothesis (Dubai lunch + evening); test and adjust from IG insights"
+  ],
+  "paused": false
+}

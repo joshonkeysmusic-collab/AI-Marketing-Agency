@@ -1,0 +1,76 @@
+{
+  "tenant": "josh-linkedin",
+  "platform": "linkedin",
+  "account_identity": "Josh Forkwa",
+  "browser": "claude-builtin",
+  "persona": {
+    "targets": "Hands-on entrepreneurs and business owners navigating AI integration; leaders struggling to keep marketing/admin workflows consistent manually",
+    "signals": [
+      "describes own AI adoption attempts",
+      "missed/slow follow-up",
+      "manual booking/scheduling",
+      "CRM stores instead of acting",
+      "admin eating founder time",
+      "scale but can't hire"
+    ],
+    "regions": [
+      "UK",
+      "EU",
+      "US"
+    ]
+  },
+  "discovery": {
+    "method": "leader-engagers",
+    "leaders_hint": "authoritative AI/automation/ops voices and founder-education creators with UK/EU/US business-owner audiences; high-engagement posts about AI adoption in real businesses",
+    "fallback": "keyword",
+    "notes": "Scan engagers of authoritative AI/automation/ops accounts, then vet their own activity. See strategy/engagement-playbook.md."
+  },
+  "voice": {
+    "formula": "notice-value-question",
+    "banned": [
+      "bullet points",
+      "long dashes",
+      "corporate fluff",
+      "artificial praise",
+      "pitch",
+      "DM me"
+    ],
+    "words": [
+      20,
+      40
+    ]
+  },
+  "proof_library": "strategy/proof-library.md",
+  "caps": {
+    "comments_day": 3,
+    "connects_day": 15,
+    "items_per_run": 2
+  },
+  "windows_local": [
+    "07:30-10:00",
+    "13:00-15:00"
+  ],
+  "approval": {
+    "bot_token_env": "TELEGRAM_BOT_TOKEN",
+    "batch_prefix": "",
+    "chat_id": null,
+    "n8n_request_url": "in approval.local.json (gitignored)",
+    "n8n_decisions_url": "in approval.local.json (gitignored)"
+  },
+  "publish": {
+    "linkedin_token": "publish/linkedin_token.json",
+    "client_id_env": "LINKEDIN_CLIENT_ID",
+    "client_secret_env": "LINKEDIN_CLIENT_SECRET"
+  },
+  "bot_token_env": "TELEGRAM_BOT_TOKEN",
+  "conf": "approvals/telegram.json",
+  "state": "approvals/state.json",
+  "inbox": "approvals/inbox.json",
+  "batches_dir": "approvals/batches",
+  "hard_rules": [
+    "Nothing posted, commented, messaged or invited without the owner's tap in the Telegram gate",
+    "No invented numbers, results or client names; proof only from proof_library",
+    "Official platform APIs only; never cookie/session automation"
+  ],
+  "notes": "Schema v1 (ENGINE-PLAN step 2). conf (telegram.json) keeps only runtime state: offset, pending_edit, cleared_msg_ats, context_hash, n8n_context_url/token. Identity + wiring live here; tenant values win, conf is fallback."
+}

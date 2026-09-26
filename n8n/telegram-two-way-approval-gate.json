@@ -1,38 +1,64 @@
 {
+  "name": "Telegram Two-Way Approval Gate",
   "nodes": [
     {
       "parameters": {
+        "multipleMethods": false,
         "httpMethod": "POST",
         "path": "approval-request",
+        "authentication": "none",
         "responseMode": "onReceived",
+        "contentTypeNotice": "",
         "options": {}
       },
-      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "id": "7e86f765-3f22-4f48-ac6c-1c96d51fd696",
       "name": "Approval Request (from Claude)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [0, 0],
+      "position": [
+        -336,
+        -736
+      ],
       "webhookId": "approval-request"
     },
     {
       "parameters": {
-        "jsCode": "// Normalise the request from Claude: {batch_id, item_id, type, target, text, media_url?, media_type?}\nconst b = $json.body || $json;\nconst label = {post:'📝 Post', comment:'💬 Comment', reply:'↩️ Reply', dm:'✉️ DM', connect:'🤝 Connection request', lead:'📄 PDF delivery'}[b.type] || b.type;\nconst head = [label, b.target].filter(Boolean).join(' · ');\nreturn [{ json: {\n  batch_id: b.batch_id, item_id: b.item_id,\n  message: `${head}\\n\\n${b.text || ''}`.slice(0, 1000),\n  media_url: b.media_url || '',\n  media_type: b.media_type || (b.media_url ? 'photo' : 'none'),\n  approve: `a|${b.batch_id}|${b.item_id}`,\n  reject: `r|${b.batch_id}|${b.item_id}`\n}}];"
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Normalise the request from Claude: {batch_id, item_id, type, target, text, media_url?, media_type?}\nconst b = $json.body || $json;\nconst label = {post:'📝 Post', comment:'💬 Comment', reply:'↩️ Reply', dm:'✉️ DM', connect:'🤝 Connection request', lead:'📄 PDF delivery'}[b.type] || b.type;\nconst head = [label, b.target].filter(Boolean).join(' · ');\nreturn [{ json: {\n  batch_id: b.batch_id, item_id: b.item_id,\n  message: `${head}\\n\\n${b.text || ''}`.slice(0, 1000),\n  media_url: b.media_url || '',\n  media_type: b.media_type || (b.media_url ? 'photo' : 'none'),\n  approve: `a|${b.batch_id}|${b.item_id}`,\n  reject: `r|${b.batch_id}|${b.item_id}`\n}}];",
+        "notice": ""
       },
-      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "id": "057dce0b-5414-4160-8bb0-929497d2e2f2",
       "name": "Build Message",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 0]
+      "position": [
+        -112,
+        -736
+      ]
     },
     {
       "parameters": {
+        "mode": "rules",
         "rules": {
           "values": [
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
                 "conditions": [
-                  { "leftValue": "={{ $json.media_type }}", "rightValue": "video", "operator": { "type": "string", "operation": "equals" } }
+                  {
+                    "leftValue": "={{ $json.media_type }}",
+                    "rightValue": "video",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
                 ],
                 "combinator": "and"
               },
@@ -41,9 +67,21 @@
             },
             {
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
                 "conditions": [
-                  { "leftValue": "={{ $json.media_type }}", "rightValue": "photo", "operator": { "type": "string", "operation": "equals" } }
+                  {
+                    "leftValue": "={{ $json.media_type }}",
+                    "rightValue": "photo",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
                 ],
                 "combinator": "and"
               },
@@ -52,135 +90,848 @@
             }
           ]
         },
-        "options": { "fallbackOutput": "extra", "renameFallbackOutput": "text" }
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "text"
+        }
       },
-      "id": "a1b2c3d4-0003-4000-8000-000000000003",
+      "id": "69ecd5f9-33b8-48a0-a2af-32eccbe638c9",
       "name": "Media Type?",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
-      "position": [440, 0]
+      "position": [
+        112,
+        -736
+      ]
     },
     {
       "parameters": {
+        "resource": "message",
         "operation": "sendVideo",
         "chatId": "7406832850",
+        "binaryData": false,
         "file": "={{ $json.media_url }}",
         "replyMarkup": "inlineKeyboard",
-        "inlineKeyboard": { "rows": [ { "row": { "buttons": [
-          { "text": "✅ Approve to Post", "additionalFields": { "callback_data": "={{ $json.approve }}" } },
-          { "text": "❌ Reject", "additionalFields": { "callback_data": "={{ $json.reject }}" } }
-        ] } } ] },
-        "additionalFields": { "caption": "={{ $json.message }}" }
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Approve to Post",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.approve }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Reject",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.reject }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "={{ $json.message }}"
+        }
       },
-      "id": "a1b2c3d4-0004-4000-8000-000000000004",
+      "id": "9f1b1ac9-158c-46df-a7f3-5e62ee8ed439",
       "name": "Send Video for Approval",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [680, -200]
+      "position": [
+        352,
+        -928
+      ],
+      "webhookId": "c2ce7b4f-4f54-4ec9-b33f-edaac40a479d",
+      "credentials": {
+        "telegramApi": {
+          "id": "tNI8ga7L5RPjOwpe",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
+        "resource": "message",
         "operation": "sendPhoto",
         "chatId": "7406832850",
+        "binaryData": false,
         "file": "={{ $json.media_url }}",
         "replyMarkup": "inlineKeyboard",
-        "inlineKeyboard": { "rows": [ { "row": { "buttons": [
-          { "text": "✅ Approve to Post", "additionalFields": { "callback_data": "={{ $json.approve }}" } },
-          { "text": "❌ Reject", "additionalFields": { "callback_data": "={{ $json.reject }}" } }
-        ] } } ] },
-        "additionalFields": { "caption": "={{ $json.message }}" }
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Approve to Post",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.approve }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Reject",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.reject }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "={{ $json.message }}"
+        }
       },
-      "id": "a1b2c3d4-0005-4000-8000-000000000005",
+      "id": "317df6d4-7467-4255-bb30-9975abb522f9",
       "name": "Send Photo for Approval",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [680, 0]
+      "position": [
+        352,
+        -736
+      ],
+      "webhookId": "4cf9feee-fc64-45f9-a3d0-06eb3753a8b0",
+      "credentials": {
+        "telegramApi": {
+          "id": "tNI8ga7L5RPjOwpe",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
         "chatId": "7406832850",
         "text": "={{ $json.message }}",
         "replyMarkup": "inlineKeyboard",
-        "inlineKeyboard": { "rows": [ { "row": { "buttons": [
-          { "text": "✅ Approve to Post", "additionalFields": { "callback_data": "={{ $json.approve }}" } },
-          { "text": "❌ Reject", "additionalFields": { "callback_data": "={{ $json.reject }}" } }
-        ] } } ] },
-        "additionalFields": { "appendAttribution": false }
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Approve to Post",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.approve }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Reject",
+                    "additionalFields": {
+                      "callback_data": "={{ $json.reject }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
       },
-      "id": "a1b2c3d4-0006-4000-8000-000000000006",
+      "id": "357439d6-3b35-4bd5-9b55-8d8e8a47b1db",
       "name": "Send Text for Approval",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [680, 200]
+      "position": [
+        352,
+        -528
+      ],
+      "webhookId": "6e0e31dd-39ca-4758-bfc3-8f555d53387b",
+      "credentials": {
+        "telegramApi": {
+          "id": "tNI8ga7L5RPjOwpe",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
-        "updates": ["callback_query"],
+        "telegramTriggerNotice": "",
+        "updates": [
+          "callback_query",
+          "message"
+        ],
+        "attachmentNotice": "",
         "additionalFields": {}
       },
-      "id": "a1b2c3d4-0007-4000-8000-000000000007",
+      "id": "dc6038d4-bd33-47aa-8a3e-afdad358d3c1",
       "name": "Button Tapped (Telegram)",
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1.1,
-      "position": [0, 500],
-      "webhookId": "telegram-approval-callbacks"
+      "position": [
+        -336,
+        -240
+      ],
+      "webhookId": "telegram-approval-callbacks",
+      "credentials": {
+        "telegramApi": {
+          "id": "tNI8ga7L5RPjOwpe",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
-        "jsCode": "// Only Josh's chat may approve. Record the decision for Claude to collect.\nconst q = $json.callback_query;\nif (!q || q.from.id !== 7406832850) return [];\nconst [a, batch_id, item_id] = (q.data || '').split('|');\nconst decision = a === 'a' ? 'approved' : a === 'r' ? 'rejected' : 'unknown';\nconst store = $getWorkflowStaticData('global');\nstore.decisions = store.decisions || [];\nstore.decisions.push({ batch_id, item_id, decision, at: new Date().toISOString() });\nreturn [{ json: { query_id: q.id, decision, batch_id, item_id,\n  toast: decision === 'approved' ? '✅ Approved' : '❌ Rejected' } }];"
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const store = $getWorkflowStaticData('global');\nstore.decisions = store.decisions || [];\nstore.messages = store.messages || [];\nconst q = $json.callback_query;\nconst m = $json.message;\nif (q) {\nif (!q.from || q.from.id !== 7406832850) return [];\nconst parts = (q.data || '').split('|');\nconst a = parts[0], batch_id = parts[1], item_id = parts[2];\nif (a === 'e') {\nstore.awaitingEdit = { batch_id: batch_id, item_id: item_id };\nreturn [{ json: { kind: 'callback', query_id: q.id, decision: 'awaiting_edit', batch_id: batch_id, item_id: item_id, toast: 'Send the new text as your next message' } }];\n}\nconst decision = a === 'a' ? 'approved' : a === 'r' ? 'rejected' : 'unknown';\nstore.decisions.push({ batch_id: batch_id, item_id: item_id, decision: decision, at: new Date().toISOString() });\nstore.awaitingEdit = null;\nreturn [{ json: { kind: 'callback', query_id: q.id, decision: decision, batch_id: batch_id, item_id: item_id, toast: decision === 'approved' ? 'Approved' : 'Rejected' } }];\n}\nif (m) {\nif (!m.from || m.from.id !== 7406832850) return [];\nconst text = (m.text || m.caption || '').trim();\nconst voice = !!m.voice_transcript;\nif (store.awaitingEdit) {\nconst batch_id = store.awaitingEdit.batch_id, item_id = store.awaitingEdit.item_id;\nstore.decisions.push({ batch_id: batch_id, item_id: item_id, decision: 'edited', text: text, at: new Date().toISOString() });\nstore.awaitingEdit = null;\nreturn [{ json: { kind: 'message', handled: 'edit', batch_id: batch_id, item_id: item_id, text: text, voice: voice } }];\n}\nconst at = new Date().toISOString();\n// bot_pending: the n8n bot is answering this one; the local scheduled task should leave it alone.\nstore.messages.push({ text: text, at: at, voice: voice, bot_pending: !!text });\nreturn [{ json: { kind: 'message', handled: 'note', text: text, at: at, voice: voice } }];\n}\nreturn [];",
+        "notice": ""
       },
-      "id": "a1b2c3d4-0008-4000-8000-000000000008",
+      "id": "3abf32f8-7e07-4610-a17d-030e96ed640f",
       "name": "Record Decision",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 500]
+      "position": [
+        -112,
+        -240
+      ]
     },
     {
       "parameters": {
         "resource": "callback",
+        "operation": "answerQuery",
         "queryId": "={{ $json.query_id }}",
-        "additionalFields": { "text": "={{ $json.toast }}" }
+        "additionalFields": {
+          "text": "={{ $json.toast }}"
+        }
       },
-      "id": "a1b2c3d4-0009-4000-8000-000000000009",
+      "id": "c5ea27d6-d803-400a-8ea4-9b272670a67f",
       "name": "Confirm Tap",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [440, 500]
+      "position": [
+        112,
+        -240
+      ],
+      "webhookId": "3d1991d2-82b0-4a51-8afc-a7625aa588db",
+      "credentials": {
+        "telegramApi": {
+          "id": "tNI8ga7L5RPjOwpe",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
+        "multipleMethods": false,
+        "httpMethod": "GET",
         "path": "approval-decisions",
+        "authentication": "none",
         "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
         "options": {}
       },
-      "id": "a1b2c3d4-0010-4000-8000-000000000010",
+      "id": "6d2e0d30-2bec-475b-9f06-4510f78ed39f",
       "name": "Claude Collects Decisions",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [0, 800],
+      "position": [
+        -336,
+        80
+      ],
       "webhookId": "approval-decisions"
     },
     {
       "parameters": {
-        "jsCode": "// Hand over all recorded decisions and clear them.\nconst store = $getWorkflowStaticData('global');\nconst decisions = store.decisions || [];\nstore.decisions = [];\nreturn [{ json: { decisions } }];"
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const store = $getWorkflowStaticData('global');\nconst decisions = store.decisions || [];\nconst messages = store.messages || [];\nstore.decisions = [];\nstore.messages = [];\nreturn [{ json: { decisions: decisions, messages: messages } }];",
+        "notice": ""
       },
-      "id": "a1b2c3d4-0011-4000-8000-000000000011",
+      "id": "c0df2617-b844-4d8a-96ed-00f9434a99fc",
       "name": "Return & Clear Decisions",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 800]
+      "position": [
+        -112,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "v1",
+              "leftValue": "={{ !!($json.message && $json.message.voice && $json.message.from && $json.message.from.id === 7406832850) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "name": "Voice Note?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "download": true,
+        "additionalFields": {}
+      },
+      "name": "Download Voice",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        112,
+        160
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "tNI8ga7L5RPjOwpe",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Telegram voice notes are .oga; Whisper only accepts .ogg, so rename.\nreturn $input.all().map(it => {\n  if (it.binary && it.binary.data) {\n    it.binary.data.fileName = 'voice.ogg';\n    it.binary.data.mimeType = 'audio/ogg';\n    it.binary.data.fileExtension = 'ogg';\n  }\n  return it;\n});"
+      },
+      "name": "Fix Audio Name",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "name": "Transcribe Voice",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        560,
+        160
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "ck3cOfkeXr7N7DhV",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Turn the voice note back into a normal text message so the rest of the flow treats it the same.\nconst orig = $('Button Tapped (Telegram)').first().json;\nconst heard = ($json.text || '').trim();\nconst text = heard || '[Voice note: transcription failed]';\nreturn [{ json: { ...orig, message: { ...orig.message, text, voice_transcript: true } } }];"
+      },
+      "name": "Use Transcript",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "q1",
+              "leftValue": "={{ $json.handled === 'note' && !!$json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "name": "Question for Bot?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const SYSTEM = \"You are the assistant inside Josh Forkwa's LinkedIn Growth Engine, replying to Josh (the owner) in Telegram.\\n\\nStyle: casual, short, DM-style. Under ~100 words unless he asks for detail. Plain text only (no markdown, no headers, no asterisks).\\n\\nRules:\\n- Answer from the CONTEXT below and this chat. Never invent numbers, results, client names or claims that aren't there. If the context doesn't cover it or looks stale, say so plainly.\\n- You can't browse LinkedIn, pull fresh analytics, read files beyond CONTEXT, or post, comment, DM, connect, approve, reject or send anything. Never claim something was sent or done.\\n- If Josh asks for real work (drafting posts, comments or DMs, a live LinkedIn or analytics check, changing files, schedules or strategy docs), reply briefly that you'll pass it to the next full session run, and end your message with the token [HANDOFF] on its own final line. Drafts made there still go through the normal Approve/Edit/Reject queue.\\n- If his message is \\\"[Voice note: transcription failed]\\\", ask him to resend or type it.\";\nconst store = $getWorkflowStaticData('global');\nconst ctx = store.context;\nconst ctxText = ctx\n  ? 'CONTEXT (synced from Josh\\'s repo at ' + ctx.at + '):\\n\\n' + ctx.text\n  : 'CONTEXT: nothing synced yet. Tell Josh you have no project context right now.';\n// Recent chat so follow-ups make sense; merge same-role turns, start with the user.\nconst msgs = [];\nfor (const h of (store.chat || []).slice(-12).concat([{ role: 'user', text: $json.text }])) {\n  const last = msgs[msgs.length - 1];\n  if (last && last.role === h.role) last.content += '\\n\\n' + h.text;\n  else msgs.push({ role: h.role, content: h.text });\n}\nwhile (msgs.length && msgs[0].role !== 'user') msgs.shift();\nreturn [{ json: {\n  at: $json.at, text: $json.text, voice: !!$json.voice,\n  body: {\n    model: 'claude-sonnet-5', max_tokens: 700,\n    system: [{ type: 'text', text: SYSTEM }, { type: 'text', text: ctxText, cache_control: { type: 'ephemeral' } }],\n    messages: msgs,\n  },\n} }];"
+      },
+      "name": "Build Claude Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "name": "Ask Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1456,
+        160
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "rHyTjPwvlhVrpGQ7",
+          "name": "Anthropic account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const req = $('Build Claude Request').first().json;\nconst out = (($json.content) || []).filter(c => c.type === 'text').map(c => c.text).join('').trim();\nconst failed = !out;\nlet handoff = failed || /\\[HANDOFF\\]\\s*$/.test(out);\nconst spoken = failed\n  ? \"Couldn't reach Claude just now. I'll pick this up on the next scheduled run instead.\"\n  : out.replace(/\\[HANDOFF\\]\\s*$/, '').trim();\nlet reply = spoken;\nif (req.voice) reply = '🎙️ Heard: \"' + req.text + '\"\\n\\n' + reply;\n\nconst store = $getWorkflowStaticData('global');\nconst now = new Date().toISOString();\nstore.chat = (store.chat || []).concat(\n  [{ role: 'user', text: req.text, at: req.at }],\n  failed ? [] : [{ role: 'assistant', text: spoken, at: now }]\n).slice(-20);\n// Tell the local scheduled task what the bot already did, so it doesn't answer twice.\nstore.messages = store.messages || [];\nconst flags = { bot_pending: false, bot_replied: !failed, handoff, bot_reply: failed ? '' : reply };\nconst m = store.messages.find(x => x.at === req.at);\nif (m) Object.assign(m, flags);\nelse store.messages.push({ text: req.text, at: req.at, voice: req.voice, ...flags });\n// Voice in, voice out: the text reply always goes, plus a spoken copy when Josh sent a voice note.\nreturn [{ json: { reply: reply.slice(0, 4000), voice: !!req.voice && !failed, spoken: spoken.slice(0, 4000) } }];"
+      },
+      "name": "Parse Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "7406832850",
+        "text": "={{ $json.reply }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "name": "Reply to Josh",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1904,
+        160
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "tNI8ga7L5RPjOwpe",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "r1",
+              "leftValue": "={{ $json.voice === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "name": "Voice Reply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1904,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "generate",
+        "model": "tts-1",
+        "input": "={{ $json.spoken }}",
+        "voice": "onyx",
+        "options": {
+          "response_format": "mp3"
+        }
+      },
+      "name": "Speak Reply",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2128,
+        400
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "ck3cOfkeXr7N7DhV",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "7406832850",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "title": "Reply"
+        }
+      },
+      "name": "Send Voice Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2352,
+        400
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "tNI8ga7L5RPjOwpe",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bot-context",
+        "authentication": "none",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "name": "Context Sync (from Claude)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        560
+      ],
+      "webhookId": "bot-context"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Josh's repo pushes a text snapshot here so the bot can answer without his PC.\nconst b = $json.body || {};\nif (b.token !== \"<CONTEXT_TOKEN>\") return [{ json: { ok: false } }];\nconst store = $getWorkflowStaticData('global');\nstore.context = { text: String(b.text || '').slice(0, 150000), at: new Date().toISOString() };\nreturn [{ json: { ok: true, chars: store.context.text.length } }];"
+      },
+      "name": "Store Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        560
+      ]
     }
   ],
   "connections": {
-    "Approval Request (from Claude)": { "main": [ [ { "node": "Build Message", "type": "main", "index": 0 } ] ] },
-    "Build Message": { "main": [ [ { "node": "Media Type?", "type": "main", "index": 0 } ] ] },
-    "Media Type?": { "main": [
-      [ { "node": "Send Video for Approval", "type": "main", "index": 0 } ],
-      [ { "node": "Send Photo for Approval", "type": "main", "index": 0 } ],
-      [ { "node": "Send Text for Approval", "type": "main", "index": 0 } ]
-    ] },
-    "Button Tapped (Telegram)": { "main": [ [ { "node": "Record Decision", "type": "main", "index": 0 } ] ] },
-    "Record Decision": { "main": [ [ { "node": "Confirm Tap", "type": "main", "index": 0 } ] ] },
-    "Claude Collects Decisions": { "main": [ [ { "node": "Return & Clear Decisions", "type": "main", "index": 0 } ] ] }
+    "Approval Request (from Claude)": {
+      "main": [
+        [
+          {
+            "node": "Build Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Message": {
+      "main": [
+        [
+          {
+            "node": "Media Type?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Media Type?": {
+      "main": [
+        [
+          {
+            "node": "Send Video for Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Photo for Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Text for Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Button Tapped (Telegram)": {
+      "main": [
+        [
+          {
+            "node": "Voice Note?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Decision": {
+      "main": [
+        [
+          {
+            "node": "Question for Bot?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Collects Decisions": {
+      "main": [
+        [
+          {
+            "node": "Return & Clear Decisions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Voice": {
+      "main": [
+        [
+          {
+            "node": "Fix Audio Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Audio Name": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Voice": {
+      "main": [
+        [
+          {
+            "node": "Use Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Question for Bot?": {
+      "main": [
+        [
+          {
+            "node": "Build Claude Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Build Claude Request": {
+      "main": [
+        [
+          {
+            "node": "Ask Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Claude": {
+      "main": [
+        [
+          {
+            "node": "Parse Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Reply": {
+      "main": [
+        [
+          {
+            "node": "Reply to Josh",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Voice Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice Reply?": {
+      "main": [
+        [
+          {
+            "node": "Speak Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Speak Reply": {
+      "main": [
+        [
+          {
+            "node": "Send Voice Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Context Sync (from Claude)": {
+      "main": [
+        [
+          {
+            "node": "Store Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice Note?": {
+      "main": [
+        [
+          {
+            "node": "Download Voice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Transcript": {
+      "main": [
+        [
+          {
+            "node": "Record Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   }
 }

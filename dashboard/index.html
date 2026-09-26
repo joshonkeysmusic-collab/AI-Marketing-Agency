@@ -1,0 +1,151 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Growth Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#0B0F14;--surface:#141B24;--raise:#1B2530;--border:#243040;--text:#F2F5F8;--muted:#8A97A6;--auto:#19E6A1;--human:#FFB547;--assist:#6FA0FF;--bad:#FF6B6B}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;padding:28px;max-width:1100px;margin:0 auto}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-size:28px}
+h1 span{color:var(--auto)}
+h2{font-family:'Bricolage Grotesque',sans-serif;font-size:17px;margin:26px 0 10px}
+.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px;margin-top:18px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:border-color .15s}
+.card:hover{border-color:var(--muted)}
+.card.active{border-color:var(--auto)}
+.card.paused{opacity:.65}
+.card h3{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;display:flex;gap:8px;align-items:center}
+.card .id{color:var(--muted);font-size:12px;margin:2px 0 10px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--raise);border-radius:10px;padding:8px 12px;text-align:center;min-width:74px}
+.stat b{display:block;font-size:20px;font-family:'Bricolage Grotesque',sans-serif}
+.stat span{font-size:11px;color:var(--muted)}
+.stat.warn b{color:var(--human)}.stat.ok b{color:var(--auto)}
+.badge{display:inline-block;font-size:11px;border:1px solid var(--border);border-radius:99px;padding:2px 9px;color:var(--muted);margin-top:10px;margin-right:6px}
+.badge.p{color:var(--human);border-color:var(--human)}
+.ctl{display:flex;gap:8px;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--muted);text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--border)}
+td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+tr.batch{cursor:pointer}
+tr.batch:hover{background:var(--raise)}
+.st{font-weight:700}
+.st.pending{color:var(--human)}.st.approved,.st.edited{color:var(--assist)}.st.sent{color:var(--auto)}.st.rejected,.st.superseded{color:var(--muted)}
+.drawer{display:none}
+.drawer.open{display:table-row}
+.drawer>td{background:var(--raise)}
+.item{border:1px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;background:var(--surface)}
+.item .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+textarea{width:100%;min-height:70px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-family:inherit;font-size:13px;resize:vertical}
+button{background:var(--raise);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-family:inherit;font-size:13px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button.primary{border-color:var(--auto);color:var(--auto)}
+button:disabled{opacity:.4;cursor:default}
+.empty{color:var(--muted);font-size:13px;padding:12px 0}
+.note{color:var(--muted);font-size:11px;margin-top:30px}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--raise);border:1px solid var(--auto);border-radius:10px;padding:10px 16px;font-size:13px;display:none;max-width:420px}
+</style></head><body>
+<h1>Growth <span>Engine</span></h1>
+<div class="sub">Localhost cockpit · approvals live in Telegram, nothing sends to any platform from here</div>
+
+<div class="cards" id="cards"></div>
+
+<h2 id="btitle">Batches</h2>
+<table id="batches"><thead><tr><th>Batch</th><th>Title</th><th>Items</th><th>Statuses</th><th></th></tr></thead><tbody></tbody></table>
+
+<h2>Cross-tenant spill (parked taps)</h2>
+<div id="spill" class="empty"></div>
+
+<h2 id="ltitle">Engagement log · latest 25</h2>
+<div class="sub" id="lognote"></div>
+<table id="log"><thead><tr><th>Date</th><th>Action</th><th>Person</th><th>Status</th></tr></thead><tbody></tbody></table>
+
+<div class="note">Source of truth stays the CLI (`telegram_approvals.py status`). Editing here only changes local draft text; every send still requires your Telegram tap.</div>
+<div id="toast"></div>
+
+<script>
+const $=q=>document.querySelector(q);
+const esc=s=>{const d=document.createElement('span');d.textContent=s==null?'':String(s);return d.innerHTML};
+let TENANT=null;
+async function j(u,opts){const r=await fetch(u,opts);return r.json()}
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',5000)}
+
+async function loadCards(){
+  const ts=await j('/api/tenants');const c=$('#cards');c.innerHTML='';
+  if(!TENANT&&ts.length)TENANT=ts[0].tenant;
+  for(const t of ts){
+    const card=document.createElement('div');
+    card.className='card'+(t.tenant===TENANT?' active':'')+(t.paused?' paused':'');
+    card.onclick=()=>{TENANT=t.tenant;loadCards()};
+    card.innerHTML=`<h3>${esc(t.tenant)} ${t.paused?'<span class="badge p">PAUSED</span>':''}</h3>
+      <div class="id">${esc(t.platform)} · ${esc(t.identity)}</div>
+      <div class="stats">
+        <div class="stat warn"><b>${t.pending}</b><span>pending tap</span></div>
+        <div class="stat ok"><b>${t.ready}</b><span>ready to send</span></div>
+        <div class="stat"><b>${t.sent_today}</b><span>sent today</span></div>
+        <div class="stat"><b>${t.batches}</b><span>batches</span></div>
+      </div>
+      ${t.token_days_left!=null?`<div class="badge">LinkedIn token: ${esc(t.token_days_left)}d</div>`:''}
+      <div class="badge">last activity ${esc(t.last_activity||'—')}</div>
+      <div class="ctl">
+        <button onclick="event.stopPropagation();pollT('${esc(t.tenant)}')">Poll taps</button>
+        <button onclick="event.stopPropagation();pauseT('${esc(t.tenant)}')">${t.paused?'Resume':'Pause'}</button>
+      </div>`;
+    c.appendChild(card);
+  }
+  $('#btitle').textContent='Batches · '+(TENANT||'');
+  loadState();loadLog();
+}
+async function pollT(t){const r=await j('/api/tenant/'+encodeURIComponent(t)+'/poll',{method:'POST'});toast(r.output||JSON.stringify(r));loadCards()}
+async function pauseT(t){const r=await j('/api/tenant/'+encodeURIComponent(t)+'/pause',{method:'POST'});toast(r.paused?'Paused: agents must skip '+t:'Resumed: '+t);loadCards()}
+async function resendB(t,bid){if(!confirm('Re-send batch "'+bid+'" to Telegram? All its items go back to pending.'))return;
+  const r=await j('/api/tenant/'+encodeURIComponent(t)+'/batch/'+encodeURIComponent(bid)+'/resend',{method:'POST'});
+  toast(r.ok?r.output:('Refused: '+r.error));loadCards()}
+async function saveItem(t,bid,iid,btn){
+  const text=btn.parentElement.querySelector('textarea').value;
+  const r=await j('/api/tenant/'+encodeURIComponent(t)+'/item/'+encodeURIComponent(bid)+'/'+encodeURIComponent(iid)+'/edit',
+    {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+  toast(r.ok?'Saved. The Telegram card still shows the old text; approving uses your edit.':'Refused: '+r.error);
+}
+async function loadState(){
+  if(!TENANT)return;
+  const st=await j('/api/tenant/'+encodeURIComponent(TENANT)+'/state');
+  const tb=$('#batches tbody');tb.innerHTML='';
+  const bids=Object.keys(st).reverse();
+  if(!bids.length){tb.innerHTML='<tr><td colspan="5" class="empty">No batches yet.</td></tr>';return}
+  for(const bid of bids){
+    const b=st[bid];const items=Object.values(b.items||{});
+    const counts={};for(const it of items){const k=it.sent?'sent':it.status;counts[k]=(counts[k]||0)+1}
+    const cstr=Object.entries(counts).map(([k,v])=>`<span class="st ${esc(k)}">${v} ${esc(k)}</span>`).join(' · ');
+    const anySent=items.some(it=>it.sent);
+    const row=document.createElement('tr');row.className='batch';
+    row.innerHTML=`<td>${esc(bid)}</td><td>${esc(b.title)}</td><td>${items.length}</td><td>${cstr}</td>
+      <td><button ${anySent?'disabled title="has sent items"':''} onclick="event.stopPropagation();resendB('${esc(TENANT)}','${esc(bid)}')">Resend</button></td>`;
+    const drawer=document.createElement('tr');drawer.className='drawer';
+    const cell=document.createElement('td');cell.colSpan=5;
+    for(const it of items){
+      const div=document.createElement('div');div.className='item';
+      const meta=document.createElement('div');meta.className='meta';
+      meta.innerHTML=`<span class="st ${esc(it.sent?'sent':it.status)}">[${esc(it.sent?'sent':it.status)}]</span> <b>${esc(it.id)}</b> · ${esc(it.type)} · ${esc(it.target||'')}`;
+      const ta=document.createElement('textarea');ta.value=it.final_text||it.text||'';ta.disabled=!!it.sent;
+      const btn=document.createElement('button');btn.className='primary';btn.textContent=it.sent?'Sent — locked':'Save edit';
+      btn.disabled=!!it.sent;
+      btn.onclick=e=>{e.stopPropagation();saveItem(TENANT,bid,it.id,btn)};
+      div.append(meta,ta,btn);cell.appendChild(div);
+    }
+    drawer.appendChild(cell);
+    row.onclick=()=>drawer.classList.toggle('open');
+    tb.append(row,drawer);
+  }
+}
+async function loadSpill(){
+  const s=await j('/api/spill');
+  $('#spill').innerHTML=s.length?s.map(d=>`<div>• <b>${esc(d.batch_id)}</b>/${esc(d.item_id)} → ${esc(d.decision)} <span style="color:var(--muted)">${esc(d.at)}</span></div>`).join(''):'Empty — no taps waiting for another tenant.';
+}
+async function loadLog(){
+  const rows=await j('/api/log?rows=25');const tb=$('#log tbody');tb.innerHTML='';
+  $('#lognote').textContent='Log is global for now (rows carry no tenant tag yet).';
+  for(const r of rows)tb.insertAdjacentHTML('beforeend',`<tr><td>${esc(r.date)}</td><td>${esc(r.action)}</td><td>${esc(r.person)}</td><td>${esc(r.status)}</td></tr>`);
+}
+loadCards();loadSpill();
+</script></body></html>

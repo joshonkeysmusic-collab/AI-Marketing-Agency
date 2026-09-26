@@ -2,14 +2,20 @@
 
 Goal: make Josh visible to founders and operations leads in the **UK, Europe and USA** as the person who **builds** AI systems (CRM, WhatsApp, voice agents, dashboards), not someone who just talks about AI. Every action is drafted by the Creator Agent and **approved by the owner before it's sent**.
 
+**Industry-agnostic (updated 25 Sep 2026, owner instruction):** Josh's work applies to any business with manual admin, follow-up or booking overhead — not only med spas/clinics. Target by **pain signal**, not by vertical. Qualifying signals: missed/slow lead follow-up, manual booking or scheduling, a CRM that just stores data instead of driving action, repetitive admin eating founder/ops time, "we need to scale but can't hire fast enough." Med spas and clinics remain a strong proof point (Josh's CV) and stay in the mix, but are no longer the primary filter.
+
+**Target persona (updated 26 Sep 2026, owner instruction):** hands-on entrepreneurs and business owners **navigating AI integration** — leaders who struggle to keep marketing and admin workflows consistent when run manually, and who are trying (or failing, or half-succeeding) to fix that with AI. The strongest signal is someone describing their *own* AI adoption experience: what they tried, where it got messy, what they still do by hand. These people are mid-journey buyers; meet them inside that journey, not with a pitch.
+
+**Discovery method (owner instruction, 26 Sep 2026):** don't lead with generic keyword searches — they mostly surface vendors. Source prospects from the **engagement circles of key industry leaders**: open recent posts by authoritative accounts (group D creators, large AI/automation/ops voices), read who comments and reacts, then check those engagers' own recent posts and comments. Qualify the ones who are active entrepreneurs/owners engaging with implementation content — asking how to apply it, or describing their own attempts. Keyword search stays as a fallback only.
+
 ## 1. Who to follow (and why)
 
 Follow = see their posts in the feed, so there's something worth commenting on. Buyers first, peers second, tools last.
 
 | Group | Share of follows | Examples / how to find | Why |
 |---|---|---|---|
-| **A. UK & Europe buyers** | 40% | Founders/COOs of clinics, med spas and aesthetics, wellness, professional services, property, e-commerce in the UK and Europe (search: "founder aesthetics clinic London", "COO scale-up UK", "Head of Operations Berlin") | Josh's strongest proof (med spa AI CRM, skin-analysis engine) is in **aesthetics and wellness**, a big, fragmented market in the UK and Europe |
-| **B. US buyers** | 25% | Founders/COOs of med spas, clinics, agencies and home-services businesses in the US (med spas are a large US sector) | Highest budgets; voice agents and AI receptionists are a mature buying category there |
+| **A. UK & Europe buyers** | 40% | Founders/COOs/Ops leads across **any industry** showing the pain signals above: clinics & med spas, professional services (legal, accounting, consulting), real estate, home services, agencies, e-commerce, B2B SaaS, hospitality. Search by pain, not just title: "founder scaling ops UK", "missed leads", "manual booking", plus sector terms as needed | Widest addressable market; med spas/clinics still a strong proof point but no longer the only lens |
+| **B. US buyers** | 25% | Same pain-signal approach, US-based: med spas/clinics, home services (HVAC, dental, legal, real estate), agencies, SaaS founders | Highest budgets; voice agents and AI receptionists are a mature buying category there across many verticals |
 | **C. Ecosystem amplifiers** | 15% | UK/EU/US founder communities and publications: Sifted, Tech Nation alumni, SaaStr, Indie Hackers, med spa and aesthetics associations (AmSpa in the US) | Their posts collect founder comments, so a sharp comment gets seen by the right people |
 | **D. Peer builders / creators** | 15% | AI-agent educators (e.g. Rakesh Gohel, AI agent governance), n8n and voice-AI builders | Learn formats and trends; comment as a fellow practitioner. **Don't** chase their audiences, who are mostly other builders, not buyers |
 | **E. Tools** | 5% | n8n, Supabase, VAPI, Anthropic / Claude, OpenAI | Product news gives timely post angles ("what this release means for SMEs") |
@@ -18,7 +24,16 @@ Target: follow about 15 new accounts a week (mostly A and B), and unfollow accou
 
 ## 2. Kinds of comments to leave
 
-Each comment should show that Josh has *built* something related. Use only proof from `proof-library.md`, **20–30 words max**, human-sounding, no links, no pitch, no "Great post!".
+Each comment should show that Josh has *built* something related. Use only proof from `proof-library.md`, human-sounding, no links, no pitch, no "Great post!".
+
+**Comment formula (owner instruction, 26 Sep 2026) — bottom line first, in this order:**
+1. **What you notice** — the specific thing in their post, named plainly, no praise wrapper.
+2. **Add value** — one thing from real build experience that extends or complicates it.
+3. **Open it up** — end with a genuinely relevant question that invites debate on a Problem, a Person (who feels it), or a Promise (what fixing it is worth) — one of the three or all of them, whatever the post calls for.
+
+Style: brief and direct (roughly 20–40 words), written like a person typing, not a brand. **Banned:** bullet points, long dashes (— or –; use commas or full stops), corporate fluff, artificial praise, "Great post", "Love this".
+
+**Content angle:** speak to the real-world mess of AI implementation — the initial productivity spike, the maintenance overhead nobody budgets for, the workflows that quietly fall back to manual. Never position AI as a magic bullet; Josh's credibility is that he knows where it breaks.
 
 | Type | When | Pattern | Example seed from the CV |
 |---|---|---|---|

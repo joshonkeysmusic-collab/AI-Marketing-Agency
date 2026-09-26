@@ -1,0 +1,193 @@
+{
+  "name": "Approval Gate — {{TENANT_SLUG}}",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": false,
+        "httpMethod": "POST",
+        "path": "approval-request-{{TENANT_SLUG}}",
+        "authentication": "none",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Approval Request (from operator)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-336, -736],
+      "webhookId": "approval-request-{{TENANT_SLUG}}"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Normalise the request: {batch_id, item_id, type, target, text, media_url?, media_type?}\nconst b = $json.body || $json;\nconst label = {post:'📝 Post', comment:'💬 Comment', reply:'↩️ Reply', dm:'✉️ DM', connect:'🤝 Connection request', lead:'📄 PDF delivery'}[b.type] || b.type;\nconst head = [label, b.target].filter(Boolean).join(' · ');\nreturn [{ json: {\n  batch_id: b.batch_id, item_id: b.item_id,\n  message: `${head}\\n\\n${b.text || ''}`.slice(0, 1000),\n  media_url: b.media_url || '',\n  media_type: b.media_type || (b.media_url ? 'photo' : 'none'),\n  approve: `a|${b.batch_id}|${b.item_id}`,\n  edit: `e|${b.batch_id}|${b.item_id}`,\n  reject: `r|${b.batch_id}|${b.item_id}`\n}}];"
+      },
+      "name": "Build Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-112, -736]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 1},
+                "conditions": [{"leftValue": "={{ $json.media_type }}", "rightValue": "video", "operator": {"type": "string", "operation": "equals"}}],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "video"
+            },
+            {
+              "conditions": {
+                "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 1},
+                "conditions": [{"leftValue": "={{ $json.media_type }}", "rightValue": "photo", "operator": {"type": "string", "operation": "equals"}}],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "photo"
+            }
+          ]
+        },
+        "options": {"fallbackOutput": "extra", "renameFallbackOutput": "text"}
+      },
+      "name": "Media Type?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [112, -736]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendVideo",
+        "chatId": "{{OWNER_CHAT_ID}}",
+        "binaryData": false,
+        "file": "={{ $json.media_url }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {"rows": [{"row": {"buttons": [
+          {"text": "✅ Approve", "additionalFields": {"callback_data": "={{ $json.approve }}"}},
+          {"text": "✏️ Edit", "additionalFields": {"callback_data": "={{ $json.edit }}"}},
+          {"text": "❌ Reject", "additionalFields": {"callback_data": "={{ $json.reject }}"}}]}}]},
+        "additionalFields": {"caption": "={{ $json.message }}"}
+      },
+      "name": "Send Video for Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [352, -928]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendPhoto",
+        "chatId": "{{OWNER_CHAT_ID}}",
+        "binaryData": false,
+        "file": "={{ $json.media_url }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {"rows": [{"row": {"buttons": [
+          {"text": "✅ Approve", "additionalFields": {"callback_data": "={{ $json.approve }}"}},
+          {"text": "✏️ Edit", "additionalFields": {"callback_data": "={{ $json.edit }}"}},
+          {"text": "❌ Reject", "additionalFields": {"callback_data": "={{ $json.reject }}"}}]}}]},
+        "additionalFields": {"caption": "={{ $json.message }}"}
+      },
+      "name": "Send Photo for Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [352, -736]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "{{OWNER_CHAT_ID}}",
+        "text": "={{ $json.message }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {"rows": [{"row": {"buttons": [
+          {"text": "✅ Approve", "additionalFields": {"callback_data": "={{ $json.approve }}"}},
+          {"text": "✏️ Edit", "additionalFields": {"callback_data": "={{ $json.edit }}"}},
+          {"text": "❌ Reject", "additionalFields": {"callback_data": "={{ $json.reject }}"}}]}}]},
+        "additionalFields": {"appendAttribution": false}
+      },
+      "name": "Send Text for Approval",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [352, -528]
+    },
+    {
+      "parameters": {
+        "updates": ["callback_query", "message"],
+        "additionalFields": {}
+      },
+      "name": "Owner Tapped or Messaged",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [-336, -240],
+      "webhookId": "approval-callbacks-{{TENANT_SLUG}}"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Only the owner's chat may act. OWNER_CHAT_ID is substituted at import time.\nconst OWNER = {{OWNER_CHAT_ID}};\nconst store = $getWorkflowStaticData('global');\nstore.decisions = store.decisions || [];\nstore.messages = store.messages || [];\nconst q = $json.callback_query;\nconst m = $json.message;\nif (q) {\n  if (!q.from || q.from.id !== OWNER) return [];\n  const parts = (q.data || '').split('|');\n  const a = parts[0], batch_id = parts[1], item_id = parts[2];\n  if (a === 'e') {\n    store.awaitingEdit = { batch_id, item_id };\n    return [{ json: { kind: 'callback', query_id: q.id, decision: 'awaiting_edit', batch_id, item_id, toast: 'Send the new text as your next message' } }];\n  }\n  const decision = a === 'a' ? 'approved' : a === 'r' ? 'rejected' : 'unknown';\n  store.decisions.push({ batch_id, item_id, decision, at: new Date().toISOString() });\n  store.awaitingEdit = null;\n  return [{ json: { kind: 'callback', query_id: q.id, decision, batch_id, item_id, toast: decision === 'approved' ? 'Approved' : 'Rejected' } }];\n}\nif (m) {\n  if (!m.from || m.from.id !== OWNER) return [];\n  const text = (m.text || m.caption || '').trim();\n  if (store.awaitingEdit) {\n    const { batch_id, item_id } = store.awaitingEdit;\n    store.decisions.push({ batch_id, item_id, decision: 'edited', text, at: new Date().toISOString() });\n    store.awaitingEdit = null;\n    return [{ json: { kind: 'message', handled: 'edit', batch_id, item_id, text } }];\n  }\n  store.messages.push({ text, at: new Date().toISOString() });\n  return [{ json: { kind: 'message', handled: 'note', text } }];\n}\nreturn [];"
+      },
+      "name": "Record Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-112, -240]
+    },
+    {
+      "parameters": {
+        "resource": "callback",
+        "operation": "answerQuery",
+        "queryId": "={{ $json.query_id }}",
+        "additionalFields": {"text": "={{ $json.toast }}"}
+      },
+      "name": "Confirm Tap",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [112, -240],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "multipleMethods": false,
+        "httpMethod": "GET",
+        "path": "approval-decisions-{{TENANT_SLUG}}",
+        "authentication": "none",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "name": "Operator Collects Decisions",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-336, 80],
+      "webhookId": "approval-decisions-{{TENANT_SLUG}}"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const store = $getWorkflowStaticData('global');\nconst decisions = store.decisions || [];\nconst messages = store.messages || [];\nstore.decisions = [];\nstore.messages = [];\nreturn [{ json: { decisions, messages } }];"
+      },
+      "name": "Return & Clear Decisions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-112, 80]
+    }
+  ],
+  "connections": {
+    "Approval Request (from operator)": {"main": [[{"node": "Build Message", "type": "main", "index": 0}]]},
+    "Build Message": {"main": [[{"node": "Media Type?", "type": "main", "index": 0}]]},
+    "Media Type?": {"main": [
+      [{"node": "Send Video for Approval", "type": "main", "index": 0}],
+      [{"node": "Send Photo for Approval", "type": "main", "index": 0}],
+      [{"node": "Send Text for Approval", "type": "main", "index": 0}]]},
+    "Owner Tapped or Messaged": {"main": [[{"node": "Record Decision", "type": "main", "index": 0}]]},
+    "Record Decision": {"main": [[{"node": "Confirm Tap", "type": "main", "index": 0}]]},
+    "Operator Collects Decisions": {"main": [[{"node": "Return & Clear Decisions", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"}
+}

@@ -1,0 +1,84 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../ai-workplace/src/base.css">
+<style>
+  .page { padding: 72px 76px 56px; }
+  h1 { font-size: 78px; margin-top: 14px; line-height: 0.98; }
+  .sub { font-size: 24px; color: var(--muted); margin-top: 12px; line-height: 1.3; max-width: 880px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 26px; }
+  .card { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 20px; }
+  .card h3 { font-family: var(--display); font-weight: 800; font-size: 26px; margin-bottom: 4px; }
+  .card .k { font: 700 13px var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .bars { display: grid; gap: 12px; margin-top: 14px; }
+  .bar-row { display: grid; grid-template-columns: 110px 1fr auto; align-items: center; gap: 12px; }
+  .bar-row span:first-child { font: 700 17px var(--body); }
+  .bar { height: 26px; border-radius: 8px; }
+  .bar.human { width: 6%; background: var(--auto); }
+  .bar.ai { width: 100%; background: var(--human); }
+  .val { font: 700 15px var(--body); color: var(--muted); white-space: nowrap; }
+  .big-stat { font-family: var(--display); font-weight: 800; font-size: 46px; line-height: 1.05; margin-top: 8px; }
+  .big-stat .a { color: var(--auto); }
+  .small { font-size: 18px; color: var(--muted); margin-top: 10px; line-height: 1.35; }
+  .fears { display: grid; gap: 10px; margin-top: 14px; }
+  .fear-row { display: grid; grid-template-columns: 1fr 70px; align-items: center; gap: 10px; }
+  .fear-track { height: 20px; background: var(--sunk); border-radius: 6px; overflow: hidden; }
+  .fear-fill { height: 100%; background: var(--human); border-radius: 6px; }
+  .fear-label { font-size: 17px; }
+  .fear-pct { font-family: var(--display); font-weight: 800; font-size: 20px; text-align: right; }
+  .real { border-color: var(--assist); }
+  .real h3 { color: var(--assist); }
+  .real p { font-size: 19px; line-height: 1.4; margin-top: 6px; }
+  .bottom { margin-top: 16px; background: var(--raise); border-radius: 22px; padding: 22px 30px 16px; border-left: 6px solid var(--human); }
+  .bottom p { font-family: var(--display); font-weight: 800; font-size: 26px; line-height: 1.2; }
+  .bottom p .a { color: var(--human); }
+  .src { position: absolute; right: 76px; bottom: 30px; font-size: 15px; color: var(--muted); text-align: right; max-width: 440px; line-height: 1.4; }
+  .me { display: grid; grid-template-columns: 64px 1fr; gap: 16px; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .face { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--auto); overflow: hidden; }
+  .face img { width: 100%; height: 100%; object-fit: cover; }
+  .me b { font-size: 20px; } .me span { display: block; font-size: 16px; color: var(--muted); margin-top: 2px; }
+</style></head><body><div class="page">
+  <div class="kicker">AI &amp; society · The physics of fear</div>
+  <h1>We fear the wrong <span class="c-human">AI apocalypse.</span></h1>
+  <p class="sub">Research on energy, psychology and accountability points to a very different risk than the one in the headlines.</p>
+
+  <div class="row">
+    <div class="card">
+      <div class="k">The physics</div>
+      <h3>Brains beat chips</h3>
+      <div class="bars">
+        <div class="bar-row"><span class="c-auto">Human brain</span><div class="bar human"></div><span class="val">12–25 W</span></div>
+        <div class="bar-row"><span class="c-human">Silicon AI</span><div class="bar ai"></div><span class="val">Megawatts+</span></div>
+      </div>
+      <div class="big-stat">10 billion<span class="a">×</span></div>
+      <p class="small">the entire USA's power output — the modelled energy needed for AI to out-think collective humanity (the Erasi equation). Biological computing runs ~2.7× more efficiently than silicon (Blue Brain Project data). This is a thermodynamics wall, not a software one.</p>
+    </div>
+
+    <div class="card">
+      <div class="k">The psychology</div>
+      <h3>What we actually fear</h3>
+      <div class="fears">
+        <div class="fear-row"><span class="fear-label">Fear an uncontrollable AI takeover</span><span class="fear-pct">96%</span></div>
+        <div class="fear-track"><div class="fear-fill" style="width:96%"></div></div>
+        <div class="fear-row"><span class="fear-label">Fear an uncontrollable fate</span><span class="fear-pct">86%</span></div>
+        <div class="fear-track"><div class="fear-fill" style="width:86%"></div></div>
+        <div class="fear-row"><span class="fear-label">Fear a meaningless future</span><span class="fear-pct">93%</span></div>
+        <div class="fear-track"><div class="fear-fill" style="width:93%"></div></div>
+      </div>
+      <p class="small">Surveyed public reaction to an AI-dominated future. We're bracing for a rogue superintelligence that the numbers above say can't exist yet.</p>
+    </div>
+  </div>
+
+  <div class="card real" style="margin-top:16px">
+    <div class="k">The real risk</div>
+    <h3>Accountability, not apocalypse</h3>
+    <p>An algorithm can't be sued, can't apologise, can't carry blame. Only a human can. The danger isn't AI seizing judgement — it's people quietly handing judgement over, one convenient decision at a time, to something that can never own the outcome.</p>
+  </div>
+
+  <div class="bottom">
+    <p>The real question isn't <span class="a">"will AI take over?"</span><br>It's <span class="a">"what am I quietly letting it decide"</span> that only I should?</p>
+  </div>
+
+  <div class="src" style="position:static; text-align:left; max-width:100%; margin-top:14px;">Sources: TechRxiv · Blue Brain Project · Oxford University Research Archive</div>
+  <div class="me">
+    <div class="face"><img src="../../brand/headshot-square.jpg" alt=""></div>
+    <div><b>Josh Forkwa</b> · AI Automation Specialist<span>Where AI actually helps, and where it shouldn't.</span></div>
+  </div>
+</div></body></html>
