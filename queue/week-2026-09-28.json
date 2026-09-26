@@ -24,14 +24,15 @@
       "id": "2026-09-29-tue",
       "slot": "2026-09-29T09:30:00+01:00",
       "gap": "G4",
-      "theme": "T2",
-      "type": "case_study",
+      "theme": "T4",
+      "type": "teaching",
       "format": "diagram",
-      "hook": "I'm building a team of AI agents to run my LinkedIn.",
-      "asset": "assets/2026-09-29-pipeline-diagram.png",
+      "hook": "Should you automate it? My 5-question test.",
+      "asset": "assets/automation-triage/automation-triage-infographic.png",
       "status": "ready_to_schedule",
       "blockers": [],
-      "owner_go_ahead": null
+      "owner_go_ahead": null,
+      "note": "Swapped 26 Sep (replaces agent-team post that repeats the video). Wording approved by Josh via Telegram tap."
     },
     {
       "id": "2026-09-30-wed",
@@ -53,13 +54,14 @@
       "slot": "2026-10-01T09:30:00+01:00",
       "gap": "G3",
       "theme": "T2",
-      "type": "opinion",
+      "type": "case_study",
       "format": "diagram",
-      "hook": "The most important part of my AI agent system isn't the AI.",
-      "asset": "assets/2026-10-01-approval-gate.png",
+      "hook": "My AI agent refused to work this week.",
+      "asset": "assets/agent-refused/agent-refused-infographic.png",
       "status": "ready_to_schedule",
       "blockers": [],
-      "owner_go_ahead": null
+      "owner_go_ahead": null,
+      "note": "Swapped 26 Sep (replaces approval-gate post that repeats Human Veto). Wording approved by Josh via Telegram tap."
     }
   ],
   "network_growth": {

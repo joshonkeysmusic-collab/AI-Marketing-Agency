@@ -31,3 +31,4 @@ __pycache__/
 *.pyc
 Thumbs.db
 desktop.ini
+approvals/webhook-rename.local.json
