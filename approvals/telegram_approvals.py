@@ -270,7 +270,6 @@ def cmd_poll_n8n(url):
             item["final_text"] = d.get("text", "")
             item["decided_at"] = d.get("at")
             applied += 1
-    save(STATE, state)
     save(SPILL, keep_spilled[-100:])
     if messages:
         # The n8n bot may re-send a message later with its reply flags; merge by timestamp
@@ -286,6 +285,21 @@ def cmd_poll_n8n(url):
                 inbox.append(m)
                 by_at[m.get("at")] = m
         save(INBOX, inbox)
+    # /approveall parity with the legacy getUpdates path: an owner message
+    # "/approveall" (live in this payload, or sitting unapplied in the inbox)
+    # approves every pending item in THIS tenant's state, once.
+    inbox = load(INBOX, [])
+    for m in inbox:
+        if str(m.get("text", "")).strip().startswith("/approveall") and not m.get("approveall_applied"):
+            for bid, b in state.items():
+                for iid, it in b.get("items", {}).items():
+                    if it.get("status") == "pending":
+                        it["status"] = "approved"
+                        it["decided_at"] = m.get("at")
+                        applied += 1
+            m["approveall_applied"] = True
+            save(INBOX, inbox)
+    save(STATE, state)
     print(f"n8n: {len(decisions)} tap(s) received, {applied} decision(s) applied, "
           f"{len(messages)} free-text message(s) received."
           + (f" {parked} parked for another tenant." if parked else "")
