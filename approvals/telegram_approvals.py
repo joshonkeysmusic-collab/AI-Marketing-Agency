@@ -385,6 +385,75 @@ def cmd_notify(text):
     print("Sent.")
 
 
+def _stamp():
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+def cmd_decide(bid, iid, decision, text=None):
+    """Record a decision made in the local Virtual Room (dashboard/chatroom.html) exactly
+    like a Telegram tap: status + decided_at in state, and the ✅/❌/✏️ tag on the Telegram
+    card so the phone shows what happened. Only pending items can be decided."""
+    if decision not in ("approved", "rejected", "edited"):
+        sys.exit("decision must be approved, rejected or edited")
+    state = load(STATE, {})
+    item = state.get(bid, {}).get("items", {}).get(iid)
+    if not item:
+        sys.exit(f"{bid}/{iid} not found in {STATE.name}")
+    if item.get("status") != "pending":
+        sys.exit(f"{bid}/{iid} is already {item['status']}")
+    text = (text or "").strip()
+    if decision == "edited" and not text:
+        sys.exit("an edit needs the new text")
+    cid = TENANT.get("approval", {}).get("chat_id") or load(CONF, {}).get("chat_id")
+    tagged = False
+    if cid and item.get("message_id"):
+        set_status(state, bid, iid, decision, cid, note=text if decision == "edited" else None)
+        tagged = True  # set_status swallows Telegram failures; the status is recorded either way
+    else:
+        item["status"] = decision
+        if decision == "edited":
+            item["final_text"] = text
+    item["decided_at"] = _stamp()
+    item["decided_via"] = "room"
+    save(STATE, state)
+    print(f"{bid}/{iid} {decision} (room)." + (" Telegram card tagged." if tagged else " No Telegram card to tag."))
+
+
+def cmd_say(text, source="room"):
+    """Append a message typed in the local room to this tenant's inbox, in the same shape
+    as a Telegram free-text message, so the auto-reply task and Claude see it."""
+    text = (text or "").strip()
+    if not text:
+        sys.exit("empty message")
+    inbox = load(INBOX, [])
+    m = {"at": _stamp(), "text": text, "source": source}
+    inbox.append(m)
+    save(INBOX, inbox)
+    print(json.dumps(m, ensure_ascii=False))
+
+
+def cmd_answer(at, text):
+    """Reply to an inbox message by its `at` stamp. Room-sourced messages get the reply
+    written back onto the record (the room shows it); Telegram-sourced ones are answered on
+    Telegram as before. Marks the message answered so the auto-reply task skips it."""
+    text = (text or "").strip()
+    if not text:
+        sys.exit("empty reply")
+    inbox = load(INBOX, [])
+    m = next((x for x in inbox if x.get("at") == at), None)
+    if not m:
+        sys.exit(f"no inbox message at {at}")
+    if m.get("source") == "room":
+        m["room_reply"] = text
+    else:
+        call("sendMessage", {"chat_id": chat_id(), "text": text})
+    m["bot_replied"] = True
+    m["bot_reply"] = text
+    m["answered_at"] = _stamp()
+    save(INBOX, inbox)
+    print(f"Answered {at} ({'room' if m.get('source') == 'room' else 'telegram'}).")
+
+
 BOT_GRACE_SECONDS = 180  # how long the n8n bot gets to answer before the local task steps in
 
 
@@ -423,7 +492,13 @@ def cmd_inbox(mode=None):
         enc = sys.stdout.encoding or "utf-8"
         print(line.encode(enc, errors="replace").decode(enc))
     if mode == "clear":
-        keep = [m for m in inbox if not needs_local(m) and not m.get("bot_replied")]
+        def fresh_room_reply(m):  # keep answered room messages an hour so the room's poll can show the reply
+            try:
+                return (m.get("source") == "room" and m.get("room_reply")
+                        and time.time() - calendar.timegm(time.strptime(m.get("answered_at", "")[:19], "%Y-%m-%dT%H:%M:%S")) < 3600)
+            except ValueError:
+                return False
+        keep = [m for m in inbox if (not needs_local(m) and not m.get("bot_replied")) or fresh_room_reply(m)]
         done = [m for m in inbox if m not in keep]
         conf = load(CONF, {})
         conf["cleared_msg_ats"] = (conf.get("cleared_msg_ats", []) + [m.get("at") for m in done])[-300:]
@@ -500,5 +575,8 @@ if __name__ == "__main__":
      "approved": lambda: cmd_approved(a[1] if len(a) > 1 else None),
      "mark": lambda: cmd_mark(a[1], a[2], a[3]), "notify": lambda: cmd_notify(" ".join(a[1:])),
      "inbox": lambda: cmd_inbox(a[1] if len(a) > 1 else None),
+     "decide": lambda: cmd_decide(a[1], a[2], a[3], " ".join(a[4:]) or None),
+     "say": lambda: cmd_say(" ".join(a[1:])),
+     "answer": lambda: cmd_answer(a[1], " ".join(a[2:])),
      "sync-context": lambda: cmd_sync_context("--force" in a)}.get(a[0], lambda: print(__doc__))()
 

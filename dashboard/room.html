@@ -1,0 +1,646 @@
+<title>Githaf Virtual Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  corePlugins: { preflight: false },
+  theme: { extend: {
+    colors: { bg:'var(--bg)', surface:'var(--surface)', raise:'var(--raise)', line:'var(--border)', ink:'var(--text)', muted:'var(--muted)',
+              green:'var(--green)', blue:'var(--blue)', warn:'var(--warn)', hot:'var(--hot)' },
+    fontFamily: { display:['Bricolage Grotesque','Segoe UI','sans-serif'], body:['Plus Jakarta Sans','Segoe UI','sans-serif'], mono:['JetBrains Mono','Consolas','monospace'] },
+  } }
+};
+</script>
+<style>
+/* Dark-first brand tokens (Githaf / Josh Forkwa). Light palette follows the same roles. */
+:root{
+  color-scheme:dark;
+  --bg:#0B0F14; --surface:#141B24; --raise:#1B2531; --border:#243040; --text:#F2F5F8; --muted:#8A97A6;
+  --green:#19E6A1; --blue:#6FA0FF; --warn:#FFB547; --hot:#FF7A59;
+  --green-soft:rgba(25,230,161,.14); --blue-soft:rgba(111,160,255,.14); --warn-soft:rgba(255,181,71,.14); --hot-soft:rgba(255,122,89,.14);
+  --on-green:#06140F; --shadow:0 12px 40px rgba(0,0,0,.35);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    color-scheme:light;
+    --bg:#F3F5F8; --surface:#FFFFFF; --raise:#EAEFF5; --border:#D5DDE7; --text:#0B0F14; --muted:#5B6875;
+    --green:#0C9F70; --blue:#2B63D9; --warn:#B8730A; --hot:#D9542F;
+    --green-soft:rgba(12,159,112,.12); --blue-soft:rgba(43,99,217,.12); --warn-soft:rgba(184,115,10,.12); --hot-soft:rgba(217,84,47,.12);
+    --on-green:#FFFFFF; --shadow:0 12px 40px rgba(11,15,20,.10);
+  }
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#F3F5F8; --surface:#FFFFFF; --raise:#EAEFF5; --border:#D5DDE7; --text:#0B0F14; --muted:#5B6875;
+  --green:#0C9F70; --blue:#2B63D9; --warn:#B8730A; --hot:#D9542F;
+  --green-soft:rgba(12,159,112,.12); --blue-soft:rgba(43,99,217,.12); --warn-soft:rgba(184,115,10,.12); --hot-soft:rgba(217,84,47,.12);
+  --on-green:#FFFFFF; --shadow:0 12px 40px rgba(11,15,20,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5;padding-inline:16px;padding-block:14px 32px}
+h1,h2,h3,h4{margin:0;font-family:'Bricolage Grotesque','Segoe UI',sans-serif;letter-spacing:-.015em;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.5}
+input,textarea,select{font:inherit;color:var(--text);background:var(--raise);border:1px solid var(--border);border-radius:10px;padding:9px 12px;width:100%}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px}
+.inset{background:var(--raise);border:1px solid var(--border);border-radius:12px}
+.label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:9px 16px;font-weight:700;border:1px solid var(--border);background:var(--raise);transition:transform .12s,background .12s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn-primary{background:var(--green);color:var(--on-green);border-color:var(--green)}
+.btn-ghost{background:transparent}
+.btn-danger{color:var(--hot);border-color:var(--hot-soft)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.04em;border:1px solid var(--border);background:var(--raise);color:var(--muted);white-space:nowrap}
+.pill.green{color:var(--green);background:var(--green-soft);border-color:transparent}
+.pill.blue{color:var(--blue);background:var(--blue-soft);border-color:transparent}
+.pill.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.pill.hot{color:var(--hot);background:var(--hot-soft);border-color:transparent}
+.tab{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;font-weight:600;color:var(--muted);border:1px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--text);background:var(--surface);border-color:var(--border)}
+.tab:hover{color:var(--text)}
+.tab .lock{color:var(--muted)}
+.agent{position:relative;display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start;padding:12px;border-radius:14px;border:1px solid var(--border);background:var(--surface);text-align:left;width:100%;transition:border-color .2s}
+.agent.busy{border-color:var(--blue)}
+.agent.wait{border-color:var(--green)}
+.agent.locked{opacity:.6}
+.avatar{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--raise);border:1px solid var(--border)}
+.avatar.green{color:var(--green);background:var(--green-soft);border-color:transparent}
+.avatar.blue{color:var(--blue);background:var(--blue-soft);border-color:transparent}
+.avatar.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.avatar.hot{color:var(--hot);background:var(--hot-soft);border-color:transparent}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.dot.busy{background:var(--blue);animation:pulse 1.2s infinite}
+.dot.wait{background:var(--green);animation:pulse 1.6s infinite}
+.dot.active{background:var(--green)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(111,160,255,.5)}60%{box-shadow:0 0 0 7px rgba(111,160,255,0)}}
+.msg{max-width:78%;padding:11px 14px;border-radius:16px;line-height:1.5}
+.msg.host{background:var(--raise);border:1px solid var(--border);border-top-left-radius:6px}
+.msg.user{background:var(--green-soft);border:1px solid transparent;border-top-right-radius:6px;margin-left:auto}
+.msg.system{max-width:100%;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);text-align:center;background:none;border:0;padding:4px}
+.chip{border-radius:999px;padding:7px 12px;border:1px solid var(--border);background:var(--raise);font-weight:600;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.browser{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--raise)}
+.urlbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);background:var(--surface)}
+.urlbar .traffic{display:flex;gap:5px}.urlbar .traffic i{width:10px;height:10px;border-radius:50%;background:var(--border);display:block}
+.urlbar .url{flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);background:var(--raise);border-radius:8px;padding:6px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.viewport{position:relative;min-height:300px;padding:16px;overflow:hidden}
+.scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:scan 2.2s linear infinite;pointer-events:none}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.sk{background:var(--border);border-radius:6px;height:10px}
+.sk.hi{outline:2px solid var(--green);outline-offset:2px;background:var(--green-soft)}
+.log{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.55;color:var(--muted)}
+.log li{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:5px 0;border-bottom:1px dashed var(--border)}
+.log li b{color:var(--text);font-weight:600}
+.log li .t{color:var(--muted)}
+.finding{display:grid;grid-template-columns:8px 1fr;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--border)}
+.finding i{border-radius:3px;background:var(--blue);margin-top:4px}
+.finding.warn i{background:var(--warn)}.finding.hot i{background:var(--hot)}.finding.green i{background:var(--green)}
+.stat{padding:12px 14px;border-radius:12px;background:var(--raise);border:1px solid var(--border)}
+.stat b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:26px;letter-spacing:-.02em;line-height:1.05}
+.stat span{font-size:12px;color:var(--muted)}
+.bar{height:8px;border-radius:4px;background:var(--border);overflow:hidden}.bar i{display:block;height:100%;background:var(--green);border-radius:4px;transition:width .5s}
+.gate{border-radius:16px;border:1px solid var(--green);background:linear-gradient(135deg,var(--green-soft),transparent);padding:16px 18px;box-shadow:var(--shadow)}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 14px;border-radius:12px;background:var(--raise);border:1px solid var(--border)}
+.reveal{animation:rise .35s ease-out}
+@keyframes rise{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stepper{display:flex;gap:6px;flex-wrap:wrap}
+.step{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 12px;border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--muted)}
+.step[aria-current="step"]{color:var(--text);border-color:var(--green)}
+.step.done{color:var(--green)}
+.step .n{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--raise);border:1px solid var(--border)}
+.step.done .n{background:var(--green);color:var(--on-green);border-color:var(--green)}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--border)}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl td.num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;text-align:right}
+.spark{display:inline-block;height:14px;border-radius:3px;background:var(--blue);vertical-align:middle}
+.spark.top{background:var(--green)}
+@media (prefers-reduced-motion:reduce){.scan,.dot,.reveal{animation:none}}
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/htm/3.1.1/htm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.475.0/dist/umd/lucide.min.js"></script>
+<script>
+(function () {
+const { useState, useEffect, useRef, useMemo } = React;
+const html = htm.bind(React.createElement);
+
+/* ---------- Icons (Lucide via UMD; falls back to a dot if the library is missing) ---------- */
+function Icon({ name, size = 18, className = '' }) {
+  const lib = window.lucide;
+  let node = lib && lib.icons && lib.icons[name];
+  if (node && node[0] === 'svg') node = node[2];
+  const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', className, 'aria-hidden': true };
+  if (!Array.isArray(node)) return html`<svg ...${common}><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" /></svg>`;
+  return html`<svg ...${common}>${node.map(([tag, attrs], i) => React.createElement(tag, { ...attrs, key: i }))}</svg>`;
+}
+
+/* ---------- Grounded data (from the live engine, 29–30 Sep 2026) ---------- */
+const TENANTS = [
+  { id: 'josh-linkedin', name: 'Josh Forkwa · LinkedIn', platform: 'LinkedIn', status: 'active' },
+  { id: 'josh-ig-gigs', name: '@joshonkeysmusic · Instagram', platform: 'Instagram', status: 'paused' },
+  { id: 'intake', name: 'New client · onboarding intake', platform: 'pending', status: 'intake' },
+];
+const AGENTS = [
+  { id: 'host', name: 'Host', role: 'Concierge · runs the room', icon: 'ConciergeBell', tone: 'green' },
+  { id: 'insight', name: 'Insight', role: 'Profile auditor', icon: 'ScanSearch', tone: 'blue' },
+  { id: 'research', name: 'Research', role: 'Audience & competitor strategist', icon: 'Radar', tone: 'blue' },
+  { id: 'creator', name: 'Content Creator', role: 'Asset & campaign architect', icon: 'PenTool', tone: 'warn' },
+  { id: 'posting', name: 'Posting', role: 'Execution & schedule manager', icon: 'Send', tone: 'hot' },
+];
+const STAGES = ['Onboarding', 'Auditing', 'Strategy Review', 'Execution Active'];
+const PROFILE = {
+  url: 'linkedin.com/in/josh-forkwa-89b5b93b8', name: 'Josh Forkwa', location: 'Dubai', company: 'Githaf Consulting',
+  headline: 'I help businesses automate and optimise operations and workflows with AI | Digital Systems & Automation Lead / Agentic AI. Claude/Codex .n8n · MCP integrations ·',
+  banner: 'AI Automation Specialist — I turn manual business processes into AI systems that run themselves.',
+  connections: 17, followers: 9, followersAsOf: '25 Sep', premium: true, openToWork: true,
+};
+const POSTS = [
+  { d: '29 Sep 07:15', hook: 'If AI makes intelligence cheap, what becomes expensive?', imp: 18, fmt: 'video', note: '2 h old at audit' },
+  { d: '26 Sep 08:55', hook: "The scariest AI answer isn't the wrong one.", imp: 11, fmt: 'text' },
+  { d: '25 Sep 10:38', hook: 'The sci-fi AI apocalypse is physically impossible', imp: 15, fmt: 'text' },
+  { d: '24 Sep 14:29', hook: 'The most valuable feature in my AI agent stack costs nothing', imp: 17, fmt: 'text', note: '5 h after the video' },
+  { d: '24 Sep 09:39', hook: 'I built a team of AI agents to run my LinkedIn', imp: 37, fmt: 'video', note: '3 reactions ≈ 9% rate' },
+  { d: '21 Sep 12:17', hook: 'My problem-solving framework with AI is simple', imp: 87, fmt: 'text' },
+  { d: '19 Sep 12:22', hook: 'I spent some time living in Dubai…', imp: 66, fmt: 'carousel' },
+  { d: '19 Sep 11:21', hook: 'A workflow problem rarely looks like a tech problem', imp: 12, fmt: 'text', note: '1 h before the carousel' },
+  { d: '18 Sep 08:11', hook: "Most businesses don't just need a CRM", imp: 42, fmt: 'text' },
+  { d: '17 Sep 10:58', hook: "We didn't set out to build an AI skin scanner", imp: 25, fmt: 'text' },
+];
+const FINDINGS = {
+  openToWork: { tone: 'hot', title: '#OPENTOWORK frame on a consultant profile', body: 'Signals job-seeking to the founders you want as clients. Brand rules mark contract job hunting off-brand.' },
+  headline: { tone: 'warn', title: 'Headline is a keyword list, not a promise', body: 'The banner carries the promise ("systems that run themselves"); the 163-char headline names no audience and no outcome.' },
+  timing: { tone: 'green', title: 'Both top posts went out at 12:15–12:25 UK', body: '87 and 66 impressions vs a median of 21. Midday hits UK lunch, Gulf afternoon and US East Coast morning at once.' },
+  spacing: { tone: 'warn', title: 'Posts under 5 h apart land bottom', body: '12 and 17 impressions, the two lowest of the ten, were both published within hours of another post.' },
+  network: { tone: 'blue', title: '17 connections caps reach', body: 'With a network this small, reach is bound by network size, not content quality. Growth is the first lever.' },
+  demo: { tone: 'green', title: 'Own-build demos get the best engagement rate', body: 'The agent-team video: 3 reactions on 32 impressions (≈9%), well above every other post.' },
+  theme1: { tone: 'blue', title: 'Audience theme: review is becoming the bottleneck', body: 'Most-replied comment in the busiest thread (Jeetu Patel, 81 comments): "the human in the loop may soon become the bottleneck."' },
+  voices: { tone: 'blue', title: 'Adjacent voices post daily and stay generic', body: 'Deven Goratela ("10 WhatsApp AI agents you can build"), Ahmed Isse (agent control policy). Neither shows a live, guardrailed system of their own.' },
+  market: { tone: 'warn', title: 'No WhatsApp-first ops content in the market sample', body: 'Feed sample: generic "lead → AI scores → follow-up" posts, enterprise ROI playbooks, developer listicles.' },
+};
+const GAPS = [
+  { id: 'G1', name: 'Your CRM is WhatsApp', score: 18, pain: 5, intent: 5, gap: 5, proof: 3, people: 'SME owners and ops leads whose sales run through WhatsApp', promise: 'Keep customers on WhatsApp, give the business memory: every message captured, tagged, turned into a CRM record and task.' },
+  { id: 'G2', name: 'Put a number on manual work', score: 16, pain: 4, intent: 5, gap: 4, proof: 3, people: 'Founders deciding whether automation is worth the spend', promise: 'A 4-step worksheet: one manual task → weekly cost → payback period.' },
+  { id: 'G3', name: 'Autonomy is earned: the approval gate', score: 15, pain: 4, intent: 3, gap: 4, proof: 4, people: 'Founders curious about agents but risk-averse', promise: 'AI speed without losing control; autonomy widens as results prove it. Proof: this room.' },
+  { id: 'G4', name: 'Build in public: the agent pipeline', score: 14, pain: 2, intent: 3, gap: 4, proof: 5, people: 'Automation-curious operators', promise: 'The only story nobody else can post: the live system running this account.' },
+];
+const PILLARS = [
+  { name: 'Guardrailed AI', gap: 'G3 · G4', share: '35%', proof: 'This room: agents draft, you approve, every decision logged.' },
+  { name: 'WhatsApp-first operations', gap: 'G1', share: '25%', proof: 'Med-spa CRM with WhatsApp follow-up; lived Nigeria/Dubai experience.' },
+  { name: 'Put a number on it', gap: 'G2', share: '20%', proof: 'Formula-based worksheets; worked examples labelled illustrative.' },
+  { name: 'Series: what stays hard when intelligence is cheap', gap: 'audience', share: '20%', proof: 'Intro posted 29 Sep; Part 1 Execution next.' },
+];
+const QUEUE = [
+  { id: 'q1', when: 'Tue 29 Sep · 09:30', title: 'Should you automate it? My 5-question test.', fmt: 'infographic', gap: 'G2', status: 'approved' },
+  { id: 'q2', when: 'Wed 30 Sep · 08:30', title: 'Put a number on manual work (worksheet carousel)', fmt: 'carousel', gap: 'G2', status: 'draft' },
+  { id: 'q3', when: 'Thu 1 Oct · 09:00', title: 'My AI agent refused to work this week.', fmt: 'infographic', gap: 'G3', status: 'approved' },
+  { id: 'q4', when: 'Fri 2 Oct · 12:15', title: '4 ways operators handle Meta ad leads (video, 50 s)', fmt: 'video', gap: 'G3', status: 'awaiting' },
+  { id: 'q5', when: 'to film', title: 'Part 1: Execution (series episode)', fmt: 'video', gap: 'series', status: 'idea' },
+];
+const ENGAGEMENT = [
+  { k: '10', v: 'likes across 6 circle profiles', d: '29 Sep' },
+  { k: '3', v: 'invites sent (Rebecca, Roshan, Kevin)', d: '28 Sep' },
+  { k: '4', v: 'DM threads live (Asim, Tammy, Ahmed, James)', d: 'this week' },
+  { k: '1', v: 'referral partner opened (Asim, GCC)', d: '28 Sep' },
+];
+const SOURCES = ['insights/weekly-2026-09-25.md', 'insights/listening-2026-09-28.md', 'strategy/gap-analysis-2026-09-28.md', 'strategy/proof-library.md', 'queue/week-2026-09-28.json', 'leads/engagement-log.csv'];
+
+/* Audit script: each beat updates the browser mock, the log, findings and agent badges. */
+const AUDIT = [
+  { url: 'https://www.linkedin.com/in/josh-forkwa-89b5b93b8/', log: 'Opening profile in the built-in browser (signed in as Josh, read-only)', agents: { insight: 'Auditing Profile', host: 'Active' }, hi: 'header' },
+  { log: 'Header read: name, 163-char headline, Dubai, Githaf Consulting, Premium, #OPENTOWORK frame', find: 'openToWork', hi: 'avatar' },
+  { log: 'Banner OCR: "AI Automation Specialist — I turn manual business processes into AI systems that run themselves."', find: 'headline', hi: 'banner' },
+  { url: 'https://www.linkedin.com/in/josh-forkwa-89b5b93b8/recent-activity/shares/', log: 'Reading the last 10 posts: impressions, reactions, publish times decoded from activity URNs', hi: 'posts' },
+  { log: 'Timing pattern found: the two outliers (87, 66) both left at 12:15–12:25 UK', find: 'timing' },
+  { log: 'Spacing pattern found: posts <5 h apart took the two lowest results', find: 'spacing', hi: 'posts' },
+  { log: 'Network: 17 connections · 9 followers (25 Sep). Reach is network-bound.', find: 'network', hi: 'network' },
+  { log: 'Engagement rate: own-build video 3/32 ≈ 9%, top of the account', find: 'demo' },
+  { url: 'https://www.linkedin.com/search/results/content/?keywords="Personal Agent Supercycle"', log: 'Research: listening in the busiest thread in the niche (Jeetu Patel · 661 reactions · 81 comments)', agents: { research: 'Analyzing Market', insight: 'Drafting Brief' }, hi: 'thread' },
+  { log: 'Most-replied comment: "the human in the loop may soon become the bottleneck" (Sam Wood, Cisco)', find: 'theme1' },
+  { url: 'https://www.linkedin.com/in/devengoratela/recent-activity/all/', log: 'Benchmarking adjacent voices: Deven Goratela, Ahmed Isse, Keydris', find: 'voices', hi: 'thread' },
+  { url: 'https://www.linkedin.com/search/results/content/?keywords=n8n automation leads', log: 'Market sample (15 posts): generic speed-to-lead workflows, enterprise ROI playbooks, listicles', find: 'market' },
+  { log: 'Scoring gaps on pain · intent · gap · proof → G1 18/20 · G2 16/20 · G3 15/20 · G4 14/20', agents: { research: 'Drafting Brief' } },
+  { log: 'Insight report ready → baseline handed to Research. Strategy brief drafted.', agents: { insight: 'Idle', research: 'Awaiting User Approval', host: 'Awaiting User Approval' }, done: true },
+];
+
+const STATE_KIND = { 'Idle': 'idle', 'Listening': 'wait', 'Auditing Profile': 'busy', 'Analyzing Market': 'busy', 'Drafting Brief': 'busy', 'Awaiting User Approval': 'wait', 'Active': 'active', 'Locked': 'locked' };
+const now = () => new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const initialAgents = { host: 'Listening', insight: 'Idle', research: 'Idle', creator: 'Locked', posting: 'Locked' };
+
+/* ---------- App ---------- */
+function App() {
+  const [tenant, setTenant] = useState('josh-linkedin');
+  const [step, setStep] = useState(1);
+  const [tab, setTab] = useState('chat');
+  const [agents, setAgents] = useState(initialAgents);
+  const [focus, setFocus] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [typing, setTyping] = useState(false);
+  const [intake, setIntake] = useState({ profile: PROFILE.url, goals: [], audience: [], stage: 0 });
+  const [audit, setAudit] = useState({ running: false, i: 0, url: 'about:blank', log: [], findings: [], hi: null, done: false });
+  const [reports, setReports] = useState({ ready: false, positioning: 'Operator first, builder second: guardrailed AI systems for founder-led businesses.', revision: '' });
+  const [approval, setApproval] = useState({ status: 'pending', log: [] });
+  const [changes, setChanges] = useState({ open: false, text: '' });
+  const [queue, setQueue] = useState(QUEUE);
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'system');
+  const timers = useRef([]);
+  const chatEnd = useRef(null);
+
+  const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = []; };
+  const after = (ms, fn) => { timers.current.push(setTimeout(fn, ms)); };
+  const setAgent = (patch) => setAgents(a => ({ ...a, ...patch }));
+  const log = (who, text) => setApproval(a => ({ ...a, log: [{ t: now(), who, text }, ...a.log] }));
+  const say = (from, text, delay = 0) => {
+    if (from === 'host') setTyping(true);
+    after(delay, () => { setTyping(false); setMessages(m => [...m, { from, text, t: now() }]); });
+  };
+
+  useEffect(() => { chatEnd.current && chatEnd.current.scrollIntoView({ block: 'end' }); }, [messages, typing]);
+  useEffect(() => {
+    if (theme === 'system') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  /* Step 1 · concierge intake */
+  useEffect(() => {
+    if (messages.length) return;
+    say('host', `Welcome back, Josh. This room runs your ${TENANTS.find(t => t.id === tenant).platform} account with five agents; nothing goes out until you approve it here. Is this still the profile we're working on?`, 600);
+  }, []);
+  const confirmProfile = () => {
+    say('user', intake.profile);
+    setIntake(i => ({ ...i, stage: 1 }));
+    say('host', 'Got it. What should this cycle move? Pick everything that applies.', 700);
+  };
+  const toggle = (key, val) => setIntake(i => ({ ...i, [key]: i[key].includes(val) ? i[key].filter(x => x !== val) : [...i[key], val] }));
+  const submitGoals = () => {
+    say('user', intake.goals.join(', '));
+    setIntake(i => ({ ...i, stage: 2 }));
+    say('host', 'And who needs to see it? I\'ll brief Research on exactly these people.', 700);
+  };
+  const submitAudience = () => {
+    say('user', intake.audience.join(', '));
+    setIntake(i => ({ ...i, stage: 3 }));
+    say('host', `Brief noted: ${intake.goals.join(' + ')} for ${intake.audience.join(', ')}. Insight will audit the live profile in the browser and Research will benchmark the audience around it. Start the deep audit when you're ready.`, 900);
+    setAgent({ insight: 'Listening', research: 'Listening' });
+  };
+
+  /* Step 2 · audit run */
+  const startAudit = () => {
+    clearTimers();
+    setStep(2); setTab('browser');
+    setAudit({ running: true, i: 0, url: 'about:blank', log: [], findings: [], hi: null, done: false });
+    setReports(r => ({ ...r, ready: false }));
+    say('host', 'Starting the deep audit. Watch the browser tab; every finding lands in the Report Hub as it\'s confirmed.', 300);
+    AUDIT.forEach((beat, k) => after(900 + k * 1100, () => applyBeat(beat, k)));
+  };
+  const applyBeat = (beat, k) => {
+    setAudit(a => ({ ...a, i: k + 1, url: beat.url || a.url, hi: beat.hi || a.hi, log: [...a.log, { t: now(), text: beat.log }], findings: beat.find && !a.findings.includes(beat.find) ? [...a.findings, beat.find] : a.findings, done: !!beat.done, running: !beat.done }));
+    if (beat.agents) setAgent(beat.agents);
+    if (beat.done) {
+      setReports(r => ({ ...r, ready: true })); setStep(3); setTab('reports');
+      say('host', 'Three reports are ready: your baseline, the audience brief and the strategy built on them. Review, edit or send changes back. Content Creator and Posting stay locked until you approve.', 400);
+      log('Research', 'Strategy brief v1 submitted for review');
+    }
+  };
+  const finishAudit = () => { clearTimers(); AUDIT.slice(audit.i).forEach((b, k) => applyBeat(b, audit.i + k)); };
+
+  /* Step 4 · approval */
+  const approve = () => {
+    setApproval(a => ({ ...a, status: 'approved' }));
+    log('You', `Approved strategy${reports.revision ? ' (with revision)' : ''} · positioning: "${reports.positioning}"`);
+    setStep(4); setAgent({ host: 'Active', research: 'Idle', creator: 'Drafting Brief', posting: 'Listening' });
+    say('host', 'Approved. Content Creator is turning the four pillars into this week\'s drafts; Posting is holding the schedule until you confirm each item.', 300);
+    after(1800, () => { setAgent({ creator: 'Active', posting: 'Awaiting User Approval' }); setStep(5); setTab('board'); log('Content Creator', '5 drafts mapped to pillars and slots'); });
+  };
+  const sendChanges = () => {
+    if (!changes.text.trim()) return;
+    const note = changes.text.trim();
+    setChanges({ open: false, text: '' });
+    say('user', note);
+    setReports(r => ({ ...r, revision: note }));
+    setAgent({ research: 'Drafting Brief' });
+    log('You', `Requested changes: "${note}"`);
+    say('host', 'Passing that to Research. It revises the brief rather than starting over, and the note stays attached so the next cycle learns from it.', 500);
+    after(1600, () => { setAgent({ research: 'Awaiting User Approval' }); log('Research', 'Brief revised with your note'); });
+  };
+  const decideDraft = (id, status) => {
+    setQueue(q => q.map(x => x.id === id ? { ...x, status } : x));
+    const item = queue.find(x => x.id === id);
+    log(status === 'approved' ? 'You' : 'You', `${status === 'approved' ? 'Approved' : status === 'rejected' ? 'Rejected' : 'Edit requested'}: ${item.title}`);
+    if (status === 'approved') log('Posting', `Scheduled "${item.title}" for ${item.when} · publishes only with this approval`);
+  };
+
+  /* Prototype controls */
+  const reset = () => { clearTimers(); setStep(1); setTab('chat'); setAgents(initialAgents); setMessages([]); setTyping(false); setIntake({ profile: PROFILE.url, goals: [], audience: [], stage: 0 }); setAudit({ running: false, i: 0, url: 'about:blank', log: [], findings: [], hi: null, done: false }); setReports(r => ({ ...r, ready: false, revision: '' })); setApproval({ status: 'pending', log: [] }); setQueue(QUEUE); setChanges({ open: false, text: '' }); after(50, () => say('host', 'Room reset. Is this still the profile we\'re working on?', 400)); };
+  const jump = (n) => {
+    clearTimers();
+    if (n === 1) return reset();
+    setIntake({ profile: PROFILE.url, goals: ['Client leads', 'Authority'], audience: ['Founders & SME owners', 'Ops leads'], stage: 3 });
+    if (n === 2) { setStep(2); setTab('browser'); setAudit({ running: true, i: 0, url: 'about:blank', log: [], findings: [], hi: null, done: false }); setAgent({ insight: 'Auditing Profile', research: 'Listening', host: 'Active' }); AUDIT.forEach((b, k) => after(400 + k * 1100, () => applyBeat(b, k))); return; }
+    const full = { running: false, i: AUDIT.length, url: AUDIT[11].url, log: AUDIT.map(b => ({ t: now(), text: b.log })), findings: Object.keys(FINDINGS), hi: 'thread', done: true };
+    setAudit(full); setReports(r => ({ ...r, ready: true }));
+    if (n === 3) { setStep(3); setTab('reports'); setAgents({ ...initialAgents, host: 'Awaiting User Approval', research: 'Awaiting User Approval' }); setApproval({ status: 'pending', log: [{ t: now(), who: 'Research', text: 'Strategy brief v1 submitted for review' }] }); return; }
+    setApproval({ status: 'approved', log: [{ t: now(), who: 'Content Creator', text: '5 drafts mapped to pillars and slots' }, { t: now(), who: 'You', text: 'Approved strategy' }] });
+    setAgents({ host: 'Active', insight: 'Idle', research: 'Idle', creator: n === 4 ? 'Drafting Brief' : 'Active', posting: n === 4 ? 'Listening' : 'Awaiting User Approval' });
+    setStep(n); setTab(n === 4 ? 'reports' : 'board');
+  };
+
+  const stage = step <= 1 ? 0 : step === 2 ? 1 : step === 3 ? 2 : 3;
+  const tenantObj = TENANTS.find(t => t.id === tenant);
+  const locked = approval.status !== 'approved';
+  const pct = Math.round(audit.i / AUDIT.length * 100);
+
+  return html`
+    <div className="max-w-[1320px] mx-auto flex flex-col gap-4">
+      <${Header} tenant=${tenant} setTenant=${setTenant} tenantObj=${tenantObj} stage=${stage} theme=${theme} setTheme=${setTheme} audit=${audit} />
+
+      ${step === 3 && html`<${Gate} reports=${reports} setReports=${setReports} approve=${approve} changes=${changes} setChanges=${setChanges} sendChanges=${sendChanges} agents=${agents} />`}
+
+      <div className="grid gap-4 lg:grid-cols-[300px_1fr] items-start">
+        <${Presence} agents=${agents} focus=${focus} setFocus=${setFocus} step=${step} audit=${audit} queue=${queue} />
+
+        <section className="card p-3 sm:p-4 flex flex-col gap-4 min-w-0">
+          <div role="tablist" className="scrollx flex gap-1 -mx-1 px-1">
+            ${[['chat', 'MessageSquare', 'Concierge'], ['browser', 'Globe', 'Live audit'], ['reports', 'FileText', 'Report hub'], ['board', 'LayoutGrid', 'Content & execution']].map(([id, ic, name]) => html`
+              <button key=${id} role="tab" aria-selected=${tab === id} className="tab" onClick=${() => setTab(id)}>
+                <${Icon} name=${ic} size=${16} /> ${name}
+                ${id === 'board' && locked && html`<${Icon} name="Lock" size=${13} className="lock" />`}
+                ${id === 'reports' && !reports.ready && html`<span className="pill">${audit.running ? pct + '%' : 'empty'}</span>`}
+              </button>`)}
+          </div>
+
+          ${tab === 'chat' && html`<${Chat} messages=${messages} typing=${typing} intake=${intake} setIntake=${setIntake} confirmProfile=${confirmProfile} toggle=${toggle} submitGoals=${submitGoals} submitAudience=${submitAudience} startAudit=${startAudit} step=${step} chatEnd=${chatEnd} />`}
+          ${tab === 'browser' && html`<${Browser} audit=${audit} step=${step} startAudit=${startAudit} finishAudit=${finishAudit} intake=${intake} />`}
+          ${tab === 'reports' && html`<${Reports} audit=${audit} reports=${reports} approval=${approval} step=${step} />`}
+          ${tab === 'board' && html`<${Board} locked=${locked} queue=${queue} decideDraft=${decideDraft} approval=${approval} agents=${agents} step=${step} />`}
+        </section>
+      </div>
+
+      <${Controls} step=${step} jump=${jump} reset=${reset} />
+    </div>`;
+}
+
+/* ---------- Header / room status bar ---------- */
+function Header({ tenant, setTenant, tenantObj, stage, theme, setTheme, audit }) {
+  return html`
+    <header className="card p-3 sm:p-4 flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="avatar green"><${Icon} name="Bot" size=${22} /></div>
+        <div className="min-w-0">
+          <h1 className="text-[18px] sm:text-[20px] font-extrabold leading-tight">Virtual Room</h1>
+          <p className="text-[12px] text-muted truncate">Githaf Consulting · multi-agent workspace · replaces Telegram reporting</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+        <label className="sr-only" htmlFor="tenant">Tenant</label>
+        <select id="tenant" value=${tenant} onChange=${e => setTenant(e.target.value)} className="!w-auto text-[13px]">
+          ${TENANTS.map(t => html`<option key=${t.id} value=${t.id}>${t.name}${t.status !== 'active' ? ` (${t.status})` : ''}</option>`)}
+        </select>
+        <button className="btn btn-ghost !px-3" onClick=${() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle theme" title="Toggle theme"><${Icon} name=${theme === 'light' ? 'Moon' : 'Sun'} size=${16} /></button>
+      </div>
+      <div className="basis-full flex flex-wrap items-center gap-2 pt-1">
+        <div className="stepper" aria-label="Room status">
+          ${STAGES.map((s, i) => html`<span key=${s} className=${'step ' + (i < stage ? 'done' : '')} aria-current=${i === stage ? 'step' : undefined}><span className="n">${i < stage ? '✓' : i + 1}</span>${s}</span>`)}
+        </div>
+        <div className="flex flex-wrap gap-2 sm:ml-auto">
+          <span className="pill green"><span className="dot active"></span>Browser: signed in</span>
+          <span className="pill green"><span className="dot active"></span>n8n gate: live</span>
+          <span className=${'pill ' + (audit.running ? 'blue' : '')}><span className=${'dot ' + (audit.running ? 'busy' : '')}></span>${audit.running ? 'Audit running' : tenantObj.status === 'paused' ? 'Tenant paused' : 'Idle'}</span>
+        </div>
+      </div>
+    </header>`;
+}
+
+/* ---------- Agent presence panel ---------- */
+function Presence({ agents, focus, setFocus, step, audit, queue }) {
+  const detail = {
+    host: step === 1 ? 'Gathering intake: profile, goals, audience.' : step === 3 ? 'Holding the team until you approve the brief.' : 'Relaying decisions between you and the team.',
+    insight: audit.done ? `Baseline audited: ${audit.findings.length} findings, 10 posts read.` : audit.running ? `Auditing ${audit.url.replace('https://www.', '')}` : 'Waiting for the deep audit to start.',
+    research: audit.done ? 'Brief built on Insight\'s baseline: 4 gaps scored, 3 audience themes.' : 'Waiting for Insight\'s baseline.',
+    creator: agents.creator === 'Locked' ? 'Unlocks when the strategy is approved.' : `${queue.length} drafts mapped to approved pillars.`,
+    posting: agents.posting === 'Locked' ? 'Unlocks when the strategy is approved.' : `${queue.filter(q => q.status === 'approved').length} items scheduled · publishes only after per-item approval.`,
+  };
+  return html`
+    <aside className="flex flex-col gap-2 lg:sticky lg:top-3">
+      <div className="flex items-center justify-between px-1"><span className="label">Agents in the room</span><span className="pill">${Object.values(agents).filter(s => STATE_KIND[s] === 'busy').length} working</span></div>
+      <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1">
+        ${AGENTS.map(a => { const s = agents[a.id]; const kind = STATE_KIND[s]; return html`
+          <button key=${a.id} className=${'agent ' + (kind === 'busy' ? 'busy' : kind === 'wait' ? 'wait' : kind === 'locked' ? 'locked' : '')} onClick=${() => setFocus(focus === a.id ? null : a.id)} aria-expanded=${focus === a.id}>
+            <div className=${'avatar ' + a.tone}><${Icon} name=${kind === 'locked' ? 'Lock' : a.icon} size=${20} /></div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2"><b className="font-display text-[15px]">${a.name}</b><span className=${'dot ' + kind}></span></div>
+              <div className="text-[12px] text-muted truncate">${a.role}</div>
+              <div className=${'pill mt-1.5 ' + (kind === 'busy' ? 'blue' : kind === 'wait' ? 'green' : kind === 'active' ? 'green' : '')}>${s}</div>
+              ${focus === a.id && html`<p className="text-[12.5px] mt-2 reveal">${detail[a.id]}</p>`}
+            </div>
+          </button>`; })}
+      </div>
+      <p className="text-[11.5px] text-muted px-1">Agents share one context: Research reads Insight's audit, Creator only drafts from an approved brief, Posting only ships per-item approvals.</p>
+    </aside>`;
+}
+
+/* ---------- Tab 1 · concierge chat ---------- */
+function Chat({ messages, typing, intake, setIntake, confirmProfile, toggle, submitGoals, submitAudience, startAudit, step, chatEnd }) {
+  const GOALS = ['Client leads', 'Authority', 'Referral partners', 'Network growth'];
+  const AUD = ['Founders & SME owners', 'Ops leads', 'Sales & marketing operators', 'Agency owners', 'GCC & UK'];
+  return html`
+    <div className="flex flex-col gap-3">
+      <div className="inset p-3 sm:p-4 flex flex-col gap-3 min-h-[320px] max-h-[52vh] overflow-y-auto">
+        ${messages.map((m, i) => html`<div key=${i} className=${'msg ' + m.from + ' reveal'}>${m.text}${m.from !== 'system' && html`<div className="mono text-[10px] text-muted mt-1">${m.from === 'host' ? 'Host' : 'You'} · ${m.t}</div>`}</div>`)}
+        ${typing && html`<div className="msg host text-muted mono text-[12px]">Host is typing…</div>`}
+        <div ref=${chatEnd}></div>
+      </div>
+      ${intake.stage === 0 && html`<div className="flex flex-wrap gap-2 items-center">
+        <input id="profile-url" aria-label="LinkedIn profile URL" className="!w-auto flex-1 min-w-[220px] mono text-[13px]" value=${intake.profile} onInput=${e => setIntake(i => ({ ...i, profile: e.target.value }))} />
+        <button className="btn btn-primary" onClick=${confirmProfile}><${Icon} name="Check" size=${16} />Confirm profile</button>
+      </div>`}
+      ${intake.stage === 1 && html`<div className="flex flex-wrap gap-2 items-center">
+        ${GOALS.map(g => html`<button key=${g} className="chip" aria-pressed=${intake.goals.includes(g)} onClick=${() => toggle('goals', g)}>${g}</button>`)}
+        <button className="btn btn-primary ml-auto" disabled=${!intake.goals.length} onClick=${submitGoals}>Continue <${Icon} name="ArrowRight" size=${16} /></button>
+      </div>`}
+      ${intake.stage === 2 && html`<div className="flex flex-wrap gap-2 items-center">
+        ${AUD.map(g => html`<button key=${g} className="chip" aria-pressed=${intake.audience.includes(g)} onClick=${() => toggle('audience', g)}>${g}</button>`)}
+        <button className="btn btn-primary ml-auto" disabled=${!intake.audience.length} onClick=${submitAudience}>Continue <${Icon} name="ArrowRight" size=${16} /></button>
+      </div>`}
+      ${intake.stage === 3 && step === 1 && html`<div className="gate flex flex-wrap items-center gap-3">
+        <div className="flex-1 min-w-[220px]"><b className="font-display text-[16px]">Ready to audit</b><p className="text-[13px] text-muted">Insight opens the live profile in the browser; Research benchmarks the audience around it. Read-only; nothing is changed.</p></div>
+        <button className="btn btn-primary" onClick=${startAudit}><${Icon} name="Play" size=${16} />Start deep audit</button>
+      </div>`}
+      ${step > 1 && html`<p className="text-[12px] text-muted">Intake locked for this cycle: ${intake.goals.join(' + ')} · ${intake.audience.join(', ')}. Reset the room to change it.</p>`}
+    </div>`;
+}
+
+/* ---------- Tab 2 · live browser audit simulation ---------- */
+function Browser({ audit, step, startAudit, finishAudit, intake }) {
+  const pct = Math.round(audit.i / AUDIT.length * 100);
+  const isSearch = audit.url.includes('/search/');
+  const hi = audit.hi;
+  return html`
+    <div className="grid gap-3 xl:grid-cols-[1fr_360px]">
+      <div className="flex flex-col gap-3 min-w-0">
+        <div className="browser">
+          <div className="urlbar"><span className="traffic"><i></i><i></i><i></i></span><span className="url">${audit.url}</span><span className=${'pill ' + (audit.running ? 'blue' : audit.done ? 'green' : '')}>${audit.running ? 'auditing' : audit.done ? 'done' : 'idle'}</span></div>
+          <div className="viewport">
+            ${audit.running && html`<div className="scan"></div>`}
+            ${audit.url === 'about:blank' ? html`<div className="grid place-items-center h-[260px] text-center"><div><${Icon} name="Globe" size=${28} className="text-muted" /><p className="text-muted text-[13px] mt-2">${step === 1 && intake.stage < 3 ? 'Finish the concierge intake to unlock the audit.' : 'The built-in browser opens here when the audit starts.'}</p></div></div>`
+            : isSearch ? html`<div className="flex flex-col gap-3">
+                <div className="sk w-[46%]"></div>
+                ${[0, 1, 2].map(k => html`<div key=${k} className=${'inset p-3 flex flex-col gap-2 ' + (hi === 'thread' && k === 0 ? 'outline outline-2 outline-green' : '')}><div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-line"></div><div className="sk w-[30%]"></div></div><div className="sk w-[92%]"></div><div className="sk w-[70%]"></div><div className="flex gap-2"><span className="pill">${k === 0 ? '81 comments' : k === 1 ? '9 comments' : '2 comments'}</span></div></div>`)}
+              </div>`
+            : html`<div className="flex flex-col gap-3">
+                <div className=${'h-16 rounded-lg bg-line ' + (hi === 'banner' ? 'outline outline-2 outline-green' : '')} style=${{ background: 'linear-gradient(90deg,var(--border),var(--raise))' }}></div>
+                <div className="flex items-end gap-3 -mt-8 px-3"><div className=${'w-16 h-16 rounded-full bg-raise border-4 border-surface ' + (hi === 'avatar' ? 'outline outline-2 outline-hot' : '')}></div><div className="flex-1 flex flex-col gap-2 pb-1"><div className=${'sk w-[40%] ' + (hi === 'header' ? 'hi' : '')}></div><div className=${'sk w-[85%] ' + (hi === 'header' ? 'hi' : '')}></div></div></div>
+                <div className="grid grid-cols-3 gap-2"><div className=${'stat ' + (hi === 'network' ? 'outline outline-2 outline-green' : '')}><b className="mono">17</b><span>connections</span></div><div className="stat"><b className="mono">9</b><span>followers · 25 Sep</span></div><div className="stat"><b className="mono">10</b><span>posts read</span></div></div>
+                <div className="flex flex-col gap-2">${[87, 66, 42, 37, 25].map((v, k) => html`<div key=${k} className=${'inset p-2.5 flex items-center gap-3 ' + (hi === 'posts' ? 'outline outline-1 outline-blue' : '')}><div className="sk w-[55%] flex-1"></div><span className="mono text-[11px] text-muted">${v} imp</span></div>`)}</div>
+              </div>`}
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="bar flex-1"><i style=${{ width: pct + '%' }}></i></div>
+          <span className="mono text-[12px] text-muted w-10 text-right">${pct}%</span>
+          ${audit.running && html`<button className="btn !py-1.5 !px-3 text-[12px]" onClick=${finishAudit}><${Icon} name="SkipForward" size=${14} />Finish now</button>`}
+          ${!audit.running && !audit.done && intake.stage === 3 && html`<button className="btn btn-primary !py-1.5 !px-3 text-[12px]" onClick=${startAudit}><${Icon} name="Play" size=${14} />Start</button>`}
+        </div>
+      </div>
+      <div className="inset p-3 min-w-0">
+        <div className="flex items-center justify-between mb-2"><span className="label">Audit log</span><span className="mono text-[11px] text-muted">${audit.i}/${AUDIT.length} steps</span></div>
+        <ul className="log list-none m-0 p-0 max-h-[420px] overflow-y-auto">
+          ${audit.log.length ? audit.log.map((l, i) => html`<li key=${i} className="reveal"><span className="t">${l.t}</span><span>${i < 8 ? html`<b>Insight</b>` : html`<b>Research</b>`} · ${l.text}</span></li>`) : html`<li><span className="t">--:--</span><span>No steps yet.</span></li>`}
+        </ul>
+      </div>
+    </div>`;
+}
+
+/* ---------- Tab 3 · strategic report hub ---------- */
+function Reports({ audit, reports, approval, step }) {
+  const found = audit.findings.map(k => ({ k, ...FINDINGS[k] }));
+  const max = Math.max(...POSTS.map(p => p.imp));
+  if (!audit.findings.length) return html`<div className="inset p-6 text-center text-muted text-[13px]">Reports fill in as the audit confirms each finding. Start the deep audit from the Concierge tab.</div>`;
+  return html`
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 xl:grid-cols-2">
+        <article className="card p-4 flex flex-col gap-3 reveal">
+          <div className="flex items-center justify-between gap-2"><span className="label">1 · Profile insights · Insight</span><span className="pill blue">baseline</span></div>
+          <h3 className="text-[18px] font-extrabold">Where the account stands on 29 Sep</h3>
+          <div className="grid grid-cols-3 gap-2"><div className="stat"><b className="mono">${PROFILE.connections}</b><span>connections</span></div><div className="stat"><b className="mono">21</b><span>median impressions</span></div><div className="stat"><b className="mono">9%</b><span>best engagement rate</span></div></div>
+          <div className="scrollx"><table className="tbl"><thead><tr><th>Posted (UK)</th><th>Hook</th><th className="text-right">Impr.</th></tr></thead><tbody>
+            ${POSTS.map((p, i) => html`<tr key=${i}><td className="mono whitespace-nowrap text-muted">${p.d}</td><td>${p.hook}${p.note && html`<span className="text-muted"> · ${p.note}</span>`}</td><td className="num"><span className=${'spark mr-2 ' + (p.imp >= 60 ? 'top' : '')} style=${{ width: Math.max(6, p.imp / max * 60) + 'px' }}></span>${p.imp}</td></tr>`)}
+          </tbody></table></div>
+          <div className="flex flex-col gap-2">${found.filter(f => ['openToWork', 'headline', 'timing', 'spacing', 'network', 'demo'].includes(f.k)).map(f => html`<div key=${f.k} className=${'finding ' + f.tone}><i></i><div><b className="text-[13px]">${f.title}</b><p className="text-[12.5px] text-muted">${f.body}</p></div></div>`)}</div>
+        </article>
+
+        <article className="card p-4 flex flex-col gap-3 reveal">
+          <div className="flex items-center justify-between gap-2"><span className="label">2 · Audience & competitor brief · Research</span><span className="pill blue">${audit.done ? 'complete' : 'building'}</span></div>
+          <h3 className="text-[18px] font-extrabold">What the audience is saying, and where the gap is</h3>
+          <div className="flex flex-col gap-2">${found.filter(f => ['theme1', 'voices', 'market'].includes(f.k)).map(f => html`<div key=${f.k} className=${'finding ' + f.tone}><i></i><div><b className="text-[13px]">${f.title}</b><p className="text-[12.5px] text-muted">${f.body}</p></div></div>`)}</div>
+          ${audit.done && html`<div className="scrollx"><table className="tbl"><thead><tr><th>Gap</th><th>Who feels it</th><th className="text-right">Score /20</th></tr></thead><tbody>
+            ${GAPS.map(g => html`<tr key=${g.id}><td><b>${g.id}</b> ${g.name}<div className="text-muted text-[12px]">${g.promise}</div></td><td className="text-muted text-[12.5px]">${g.people}</td><td className="num"><b>${g.score}</b><div className="text-[10px] text-muted">${g.pain}·${g.intent}·${g.gap}·${g.proof}</div></td></tr>`)}
+          </tbody></table><p className="text-[11px] text-muted mt-1">Score = pain · buyer intent · gap size · proof strength, 1–5 each.</p></div>`}
+        </article>
+      </div>
+
+      ${reports.ready && html`<article className="card p-4 flex flex-col gap-3 reveal" style=${{ borderColor: 'var(--green)' }}>
+        <div className="flex flex-wrap items-center justify-between gap-2"><span className="label">3 · Grounded content strategy · Research → Content Creator</span><span className=${'pill ' + (approval.status === 'approved' ? 'green' : 'warn')}>${approval.status === 'approved' ? 'approved' : 'awaiting your approval'}</span></div>
+        <h3 className="text-[20px] font-extrabold">${reports.positioning}</h3>
+        ${reports.revision && html`<div className="finding warn"><i></i><div><b className="text-[13px]">Revision applied from your note</b><p className="text-[12.5px] text-muted">"${reports.revision}"</p></div></div>`}
+        <div className="grid gap-2 sm:grid-cols-2">
+          ${PILLARS.map(p => html`<div key=${p.name} className="inset p-3"><div className="flex items-center justify-between gap-2"><b className="text-[14px]">${p.name}</b><span className="pill">${p.share}</span></div><div className="text-[12px] text-muted mt-1">Gap ${p.gap} · Proof: ${p.proof}</div></div>`)}
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          <div className="stat"><b className="mono text-[20px]">4 / wk</b><span>cadence, re-decided every 2 weeks</span></div>
+          <div className="stat"><b className="mono text-[20px]">12:15 UK</b><span>test slot; matched both top posts</span></div>
+          <div className="stat"><b className="mono text-[20px]">≥ 24 h</b><span>gap between posts</span></div>
+        </div>
+        <div className="finding green"><i></i><div><b className="text-[13px]">Execution path</b><p className="text-[12.5px] text-muted">Week 1: G2 test + G3 story + Meta-leads video + series Part 1. Network growth (≈10 targeted invites/day, 3 comments/day) runs alongside, every item approved here first. Remove the #OPENTOWORK frame before the video goes out.</p></div></div>
+        <p className="text-[11px] text-muted">Sources: ${SOURCES.join(' · ')}</p>
+      </article>`}
+    </div>`;
+}
+
+/* ---------- Approval console ---------- */
+function Gate({ reports, setReports, approve, changes, setChanges, sendChanges, agents }) {
+  const [editing, setEditing] = useState(false);
+  return html`
+    <div className="gate reveal flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="avatar green"><${Icon} name="ShieldCheck" size=${22} /></div>
+        <div className="flex-1 min-w-[240px]">
+          <b className="font-display text-[17px]">Strategy brief ready for your approval</b>
+          <p className="text-[13px] text-muted">Content Creator and Posting stay locked until you approve. ${agents.research === 'Drafting Brief' ? 'Research is revising the brief with your note…' : 'Review the three reports, edit the positioning line, or send changes back.'}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button className="btn" onClick=${() => setEditing(e => !e)}><${Icon} name="Pencil" size=${16} />Edit</button>
+          <button className="btn" onClick=${() => setChanges(c => ({ ...c, open: !c.open }))}><${Icon} name="MessageSquare" size=${16} />Request changes</button>
+          <button className="btn btn-primary" disabled=${agents.research === 'Drafting Brief'} onClick=${approve}><${Icon} name="Check" size=${16} />Approve strategy & activate team</button>
+        </div>
+      </div>
+      ${editing && html`<div className="flex flex-wrap gap-2 items-center"><label htmlFor="positioning" className="label">Positioning line</label><input id="positioning" className="flex-1 min-w-[240px]" value=${reports.positioning} onInput=${e => setReports(r => ({ ...r, positioning: e.target.value }))} /><button className="btn" onClick=${() => setEditing(false)}>Done</button></div>`}
+      ${changes.open && html`<div className="flex flex-col gap-2"><label htmlFor="changes" className="label">What should Research change?</label><textarea id="changes" rows="2" placeholder="e.g. Lead with the GCC audience, not the UK, for the next two weeks" value=${changes.text} onInput=${e => setChanges(c => ({ ...c, text: e.target.value }))}></textarea><div className="flex gap-2 justify-end"><button className="btn btn-ghost" onClick=${() => setChanges({ open: false, text: '' })}>Cancel</button><button className="btn btn-primary" disabled=${!changes.text.trim()} onClick=${sendChanges}>Send to Research</button></div></div>`}
+    </div>`;
+}
+
+/* ---------- Tab 4 · content & execution board ---------- */
+function Board({ locked, queue, decideDraft, approval, agents, step }) {
+  if (locked) return html`<div className="inset p-6 text-center"><${Icon} name="Lock" size=${26} className="text-muted" /><p className="text-[14px] mt-2 font-semibold">Locked until the strategy is approved</p><p className="text-[12.5px] text-muted">Content Creator drafts only from an approved brief; Posting only ships items you approve one by one.</p></div>`;
+  const STATUS = { approved: ['green', 'approved · scheduled'], awaiting: ['warn', 'awaiting approval'], draft: ['blue', 'drafting'], idea: ['', 'to film'], rejected: ['hot', 'rejected'], edit: ['warn', 'edit requested'] };
+  return html`
+    <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
+      <div className="flex flex-col gap-3 min-w-0">
+        <div className="flex items-center justify-between"><span className="label">This week's drafts · Content Creator</span><span className="pill">${agents.creator}</span></div>
+        ${agents.creator === 'Drafting Brief' ? html`<div className="inset p-4 text-[13px] text-muted mono">Mapping pillars to slots…</div>` : queue.map(q => { const [tone, text] = STATUS[q.status]; return html`
+          <div key=${q.id} className="row reveal">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2"><b className="text-[14px]">${q.title}</b><span className=${'pill ' + tone}>${text}</span></div>
+              <div className="text-[12px] text-muted mt-1 mono">${q.when} · ${q.fmt} · ${q.gap}</div>
+            </div>
+            <div className="flex gap-1.5">
+              <button className="btn !p-2" title="Approve" aria-label="Approve" disabled=${q.status === 'approved' || q.status === 'idea'} onClick=${() => decideDraft(q.id, 'approved')}><${Icon} name="Check" size=${15} /></button>
+              <button className="btn !p-2" title="Edit" aria-label="Request edit" disabled=${q.status === 'idea'} onClick=${() => decideDraft(q.id, 'edit')}><${Icon} name="Pencil" size=${15} /></button>
+              <button className="btn btn-danger !p-2" title="Reject" aria-label="Reject" disabled=${q.status === 'idea'} onClick=${() => decideDraft(q.id, 'rejected')}><${Icon} name="X" size=${15} /></button>
+            </div>
+          </div>`; })}
+        <div className="grid gap-2 sm:grid-cols-2 mt-1">
+          ${ENGAGEMENT.map(e => html`<div key=${e.v} className="stat flex items-baseline gap-3"><b className="mono">${e.k}</b><span>${e.v} · <span className="mono">${e.d}</span></span></div>`)}
+        </div>
+      </div>
+      <div className="flex flex-col gap-3 min-w-0">
+        <div className="inset p-3">
+          <div className="flex items-center justify-between mb-2"><span className="label">Posting agent</span><span className=${'pill ' + (agents.posting === 'Awaiting User Approval' ? 'green' : '')}>${agents.posting}</span></div>
+          <ul className="list-none m-0 p-0 flex flex-col gap-2 text-[12.5px]">
+            ${queue.filter(q => q.status === 'approved').map(q => html`<li key=${q.id} className="flex gap-2"><${Icon} name="Calendar" size=${15} className="text-green mt-0.5" /><span><b>${q.when}</b> · ${q.title}</span></li>`)}
+            ${!queue.some(q => q.status === 'approved') && html`<li className="text-muted">Nothing scheduled yet.</li>`}
+          </ul>
+          <p className="text-[11px] text-muted mt-3">Prototype: approvals here are simulated. The live gate is still the Telegram bot until the room is wired to <span className="mono">approvals/telegram_approvals.py</span>.</p>
+        </div>
+        <div className="inset p-3">
+          <div className="flex items-center justify-between mb-2"><span className="label">Approval log</span><span className="mono text-[11px] text-muted">${approval.log.length}</span></div>
+          <ul className="log list-none m-0 p-0 max-h-[260px] overflow-y-auto">
+            ${approval.log.map((l, i) => html`<li key=${i}><span className="t">${l.t}</span><span><b>${l.who}</b> · ${l.text}</span></li>`)}
+          </ul>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ---------- Prototype controls ---------- */
+function Controls({ step, jump, reset }) {
+  const names = ['Concierge welcome', 'Automated audit', 'Strategy verification', 'Explicit authorization', 'Full execution'];
+  return html`
+    <footer className="card p-3 flex flex-wrap items-center gap-2">
+      <span className="label mr-1">Prototype flow</span>
+      <div className="stepper">${names.map((n, i) => html`<button key=${n} className=${'step ' + (i + 1 < step ? 'done' : '')} aria-current=${i + 1 === step ? 'step' : undefined} onClick=${() => jump(i + 1)}><span className="n">${i + 1 < step ? '✓' : i + 1}</span>${n}</button>`)}</div>
+      <button className="btn btn-ghost ml-auto text-[13px]" onClick=${reset}><${Icon} name="RotateCcw" size=${15} />Reset room</button>
+    </footer>`;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+})();
+</script>

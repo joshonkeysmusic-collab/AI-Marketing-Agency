@@ -1,0 +1,106 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Front desk · Githaf</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#0B0F14;--surface:#141B24;--raise:#1B2531;--border:#243040;--text:#F2F5F8;--muted:#8A97A6;--green:#19E6A1;--blue:#6FA0FF;--warn:#FFB547;--hot:#FF7A59;--violet:#B58CFF;--teal:#3FD1C8;--on-green:#06140F;--me:#12362C}
+@media (prefers-color-scheme:light){:root{color-scheme:light;--bg:#EEF1F5;--surface:#fff;--raise:#F4F6F9;--border:#D5DDE7;--text:#0B0F14;--muted:#5B6875;--green:#0C9F70;--blue:#2B63D9;--warn:#B8730A;--hot:#D9542F;--on-green:#fff;--me:#D6F5E9}}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 'Plus Jakarta Sans','Segoe UI',sans-serif;padding:12px 16px}
+.shell{max-width:760px;height:100%;min-height:520px;margin:0 auto;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:800 14px 'Bricolage Grotesque',sans-serif;color:var(--on-green);flex:none}
+.green{background:var(--green)}.blue{background:var(--blue)}.violet{background:var(--violet)}.warn{background:var(--warn)}.hot{background:var(--hot)}.teal{background:var(--teal)}
+h1{margin:0;font:800 16px/1.1 'Bricolage Grotesque',sans-serif}header p{margin:0;font-size:12px;color:var(--muted)}
+.feed{flex:1;min-height:0;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:8px;background-image:radial-gradient(rgba(127,127,127,.12) 1px,transparent 1px);background-size:18px 18px}
+.b{max-width:min(82%,560px);padding:10px 13px;border-radius:16px;background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:6px;white-space:pre-wrap}
+.b.me{margin-left:auto;background:var(--me);border-color:transparent;border-bottom-right-radius:6px;border-bottom-left-radius:16px}
+.b.wide{max-width:100%}
+.time{font:500 11px 'JetBrains Mono',monospace;color:var(--muted)}
+.panel{padding:12px 16px 14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+input,textarea{font:inherit;color:var(--text);background:var(--raise);border:1px solid var(--border);border-radius:12px;padding:10px 13px;width:100%}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-weight:700;border:1px solid var(--border);background:var(--raise);color:var(--text);border-radius:999px;padding:9px 16px;cursor:pointer}
+.btn.p{background:var(--green);color:var(--on-green);border-color:var(--green)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.chip{font:600 13px inherit;border:1px solid var(--border);background:var(--raise);color:var(--text);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--green);color:var(--green);background:rgba(25,230,161,.14)}
+.team{display:grid;gap:8px}.member{display:grid;grid-template-columns:42px 1fr 1fr auto;gap:8px;align-items:center;padding:8px;border:1px solid var(--border);border-radius:12px}
+.member .role{font:500 11px 'JetBrains Mono',monospace;color:var(--muted);grid-column:2/-1;margin-top:-4px}
+.sw{display:flex;gap:4px}.sw button{width:18px;height:18px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}.sw button[aria-pressed="true"]{border-color:var(--text)}
+.tok{font:700 14px 'JetBrains Mono',monospace;background:var(--raise);border:1px dashed var(--green);border-radius:12px;padding:12px;word-break:break-all;user-select:all}
+.err{color:var(--hot);font-size:13px}
+@media (max-width:640px){.member{grid-template-columns:42px 1fr}.member .role{grid-column:2}.member .sw{grid-column:1/-1}}
+</style></head><body>
+<div class="shell">
+  <header><div class="av green">AO</div><div><h1>Amara Osei · Front desk</h1><p>Githaf Consulting · new workspace onboarding</p></div></header>
+  <div class="feed" id="feed"></div>
+  <div class="panel" id="panel"></div>
+</div>
+<script>
+(function(){
+const feed=document.getElementById('feed'),panel=document.getElementById('panel');
+const P={name:'',company:'',platform:'linkedin',profile_url:'',audience:'',regions:[],tone:[],avoid:[],pillars:[],team:{},invite_code:''};
+const TEAM=[{id:'amara',name:'Amara Osei',title:'Host · front-desk team leader',role:'Host / Concierge',tone:'green'},{id:'daniel',name:'Daniel Reyes',title:'Insight Lead · profile & positioning',role:'Insight Lead',tone:'blue'},{id:'priya',name:'Priya Nair',title:'Research Director · audience & market',role:'Research Director',tone:'violet'},{id:'tomas',name:'Tomás Ferreira',title:'Content Strategist · campaigns & posts',role:'Content Strategist',tone:'warn'},{id:'grace',name:'Grace Whitfield',title:'Publishing Manager · execution & schedule',role:'Publishing Manager',tone:'hot'}];
+const TONES=['green','blue','violet','warn','hot','teal'];
+let cfg={invite_required:false};
+const now=()=>new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+function say(text,me,wide){const d=document.createElement('div');d.className='b'+(me?' me':'')+(wide?' wide':'');d.innerHTML=(me?'':'<div class="time" style="color:var(--green)">Amara</div>')+esc(text)+'<div class="time" style="text-align:right">'+now()+'</div>';feed.appendChild(d);feed.scrollTop=feed.scrollHeight;}
+function host(text,delay,cb){setTimeout(()=>{say(text);if(cb)cb();},delay||600);}
+function ui(html){panel.innerHTML=html;const el=panel.querySelector('input,textarea');if(el)el.focus();}
+const val=id=>document.getElementById(id).value.trim();
+
+const steps=[
+ {ask:"Hi, I'm Amara at the Githaf front desk. I'll set up your own workspace: a private room with your five-person team, kept completely separate from every other client. First, what's your name?",
+  ui:()=>ui('<input id="v" placeholder="Your name" autocomplete="name"><div class="row"><button class="btn p" id="ok">Continue</button></div>'),
+  ok:()=>{const v=val('v');if(!v)return;P.name=v;say(v,true);return true;}},
+ {ask:()=>`Nice to meet you, ${P.name.split(' ')[0]}. Which company or brand is this workspace for?`,
+  ui:()=>ui('<input id="v" placeholder="Company or brand" autocomplete="organization"><div class="row"><button class="btn p" id="ok">Continue</button></div>'),
+  ok:()=>{const v=val('v');if(!v)return;P.company=v;say(v,true);return true;}},
+ {ask:"Which platform should the team work on first, and what's the profile or handle? (One platform to start; more can be added later.)",
+  ui:()=>ui('<div class="row" id="plat">'+['linkedin','instagram','other'].map(p=>`<button class="chip" data-p="${p}" aria-pressed="${p===P.platform}">${p[0].toUpperCase()+p.slice(1)}</button>`).join('')+'</div><input id="v" placeholder="Profile URL or @handle"><div class="row"><button class="btn p" id="ok">Continue</button></div>'),
+  ok:()=>{P.profile_url=val('v');say(`${P.platform} · ${P.profile_url||'(no link yet)'}`,true);return true;}},
+ {ask:"Who should this reach? Describe the people you want as clients in a sentence, then tap the regions that matter.",
+  ui:()=>ui('<textarea id="v" rows="2" placeholder="e.g. clinic owners in the UAE who are losing enquiries on WhatsApp"></textarea><div class="row" id="multi">'+['UK','EU','US','GCC','Africa','Global'].map(r=>`<button class="chip" data-m="${r}" aria-pressed="false">${r}</button>`).join('')+'</div><div class="row"><button class="btn p" id="ok">Continue</button></div>'),
+  ok:()=>{const v=val('v');if(!v)return;P.audience=v;P.regions=picked();say(`${v}\n${P.regions.join(', ')||'regions: not set'}`,true);return true;}},
+ {ask:"Brand voice. Tap the words that sound like you, and list anything the team must never say (comma separated).",
+  ui:()=>ui('<div class="row" id="multi">'+['Practical','Warm','Bold','Calm','Playful','Expert','Direct','Curious','Premium'].map(r=>`<button class="chip" data-m="${r}" aria-pressed="false">${r}</button>`).join('')+'</div><input id="v" placeholder="Avoid: e.g. hype, discounts, emojis"><div class="row"><button class="btn p" id="ok">Continue</button></div>'),
+  ok:()=>{P.tone=picked();if(!P.tone.length)return;P.avoid=val('v').split(',').map(s=>s.trim()).filter(Boolean);say(`Tone: ${P.tone.join(', ')}\nAvoid: ${P.avoid.join(', ')||'nothing specific'}`,true);return true;}},
+ {ask:"Now the core pillars: the three to five topics your content and conversations should keep coming back to. One per line.",
+  ui:()=>ui('<textarea id="v" rows="4" placeholder="e.g. Fewer missed enquiries&#10;What a booking system should do for you&#10;Real client stories"></textarea><div class="row"><button class="btn p" id="ok">Continue</button></div>'),
+  ok:()=>{const ps=val('v').split('\n').map(s=>s.trim()).filter(Boolean);if(ps.length<1)return;P.pillars=ps.slice(0,6);say(P.pillars.map((p,i)=>`${i+1}. ${p}`).join('\n'),true);return true;}},
+ {ask:"Last part: your team. These five run your room. Rename anyone, change their title, pick their colour, or keep the defaults.",
+  ui:()=>ui('<div class="team">'+TEAM.map(a=>`<div class="member" data-id="${a.id}"><div class="av ${a.tone}" id="av-${a.id}">${ini(a.name)}</div><input id="n-${a.id}" value="${esc(a.name)}" aria-label="Name"><input id="t-${a.id}" value="${esc(a.title)}" aria-label="Title"><div class="sw" id="sw-${a.id}">${TONES.map(t=>`<button class="${t}" data-t="${t}" aria-pressed="${t===a.tone}" title="${t}"></button>`).join('')}</div><div class="role">${a.role}</div></div>`).join('')+'</div><div class="row"><button class="btn" id="def">Keep defaults</button><button class="btn p" id="ok">Looks good</button></div>'),
+  ok:()=>{TEAM.forEach(a=>{const n=val('n-'+a.id)||a.name,t=val('t-'+a.id)||a.title,tone=(panel.querySelector(`#sw-${a.id} [aria-pressed="true"]`)||{}).dataset?.t||a.tone;P.team[a.id]={name:n,title:t,tone};});say(TEAM.map(a=>`${P.team[a.id].name} — ${P.team[a.id].title}`).join('\n'),true);return true;}},
+];
+function picked(){return [...panel.querySelectorAll('#multi [aria-pressed="true"]')].map(b=>b.dataset.m);}
+let i=0;
+function step(){const s=steps[i];host(typeof s.ask==='function'?s.ask():s.ask,700,()=>{s.ui();wire(s);});}
+function wire(s){
+  panel.querySelectorAll('#plat .chip').forEach(b=>b.onclick=()=>{P.platform=b.dataset.p;panel.querySelectorAll('#plat .chip').forEach(x=>x.setAttribute('aria-pressed',x===b));});
+  panel.querySelectorAll('#multi .chip').forEach(b=>b.onclick=()=>b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true'));
+  panel.querySelectorAll('.sw button').forEach(b=>b.onclick=()=>{const sw=b.parentElement;sw.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));const id=sw.id.slice(3);const av=document.getElementById('av-'+id);av.className='av '+b.dataset.t;});
+  panel.querySelectorAll('.member input[id^="n-"]').forEach(inp=>inp.oninput=()=>{document.getElementById('av-'+inp.id.slice(2)).textContent=ini(inp.value||'?');});
+  const def=document.getElementById('def');if(def)def.onclick=()=>{TEAM.forEach(a=>{P.team[a.id]={name:a.name,title:a.title,tone:a.tone};});say('Keep the defaults',true);next();};
+  document.getElementById('ok').onclick=()=>{if(s.ok())next();};
+  panel.querySelectorAll('input').forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter'&&!el.closest('.member')){e.preventDefault();document.getElementById('ok').click();}}));
+}
+function next(){i++;if(i<steps.length)step();else review();}
+function review(){
+  host(`Here's your workspace summary. ${cfg.invite_required?'Enter your invite code and ':''}Create it when you're happy; your team starts paused until we've verified the setup together, so nothing goes out on its own.`,700,()=>{
+    ui(`<div class="b wide" style="max-width:100%"><b>${esc(P.name)} · ${esc(P.company)}</b> · ${esc(P.platform)} ${esc(P.profile_url)}\nAudience: ${esc(P.audience)} (${esc(P.regions.join(', ')||'regions not set')})\nVoice: ${esc(P.tone.join(', '))} · avoid ${esc(P.avoid.join(', ')||'—')}\nPillars: ${esc(P.pillars.join(' · '))}</div>${cfg.invite_required?'<input id="inv" placeholder="Invite code">':''}<div class="err" id="err" role="alert"></div><div class="row"><button class="btn p" id="ok">Create my workspace</button></div>`);
+    document.getElementById('ok').onclick=create;});
+}
+async function create(){const ok=document.getElementById('ok'),err=document.getElementById('err');ok.disabled=true;err.textContent='';
+  if(cfg.invite_required)P.invite_code=val('inv');
+  try{const r=await fetch('/api/onboard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(P)});const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||'Could not create the workspace');
+    say(`Create my workspace`,true);
+    host(`Done. Your workspace is ${j.tenant}, and you're signed in on this device. This is your workspace token — the only time it's shown. Keep it somewhere safe; it's how you sign in anywhere else.`,600,()=>{
+      ui(`<div class="tok" id="tok">${esc(j.token)}</div><div class="row"><button class="btn" id="cp">Copy token</button><button class="btn p" id="go">Open my room →</button></div>`);
+      document.getElementById('cp').onclick=async()=>{try{await navigator.clipboard.writeText(j.token);document.getElementById('cp').textContent='Copied';}catch(e){const s=getSelection(),rg=document.createRange();rg.selectNodeContents(document.getElementById('tok'));s.removeAllRanges();s.addRange(rg);}};
+      document.getElementById('go').onclick=()=>{location.href=j.room||'/room';};
+    });
+  }catch(x){err.textContent=x.message;ok.disabled=false;}}
+fetch('/api/onboard/config').then(r=>r.json()).then(j=>{cfg=j||cfg;}).catch(()=>{}).finally(step);
+})();
+</script></body></html>

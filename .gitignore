@@ -32,3 +32,12 @@ __pycache__/
 Thumbs.db
 desktop.ini
 approvals/webhook-rename.local.json
+
+# --- Room auth (admin token, client tokens, cookie sessions) ---
+dashboard/auth.local.json
+tenants/*/auth.local.json
+dashboard/.server.out.log
+dashboard/.server.err.log
+dashboard/.tunnel.out.log
+dashboard/.tunnel.err.log
+dashboard/.verify-pull-mirror-*.json

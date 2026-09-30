@@ -1,0 +1,490 @@
+<title>Githaf Team Chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { corePlugins: { preflight: false }, theme: { extend: {
+  colors: { bg:'var(--bg)', surface:'var(--surface)', raise:'var(--raise)', line:'var(--border)', ink:'var(--text)', muted:'var(--muted)', green:'var(--green)', blue:'var(--blue)', warn:'var(--warn)', hot:'var(--hot)' },
+  fontFamily: { display:['Bricolage Grotesque','Segoe UI','sans-serif'], body:['Plus Jakarta Sans','Segoe UI','sans-serif'], mono:['JetBrains Mono','Consolas','monospace'] },
+} } };
+</script>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0B0F14; --surface:#141B24; --raise:#1B2531; --border:#243040; --text:#F2F5F8; --muted:#8A97A6;
+  --green:#19E6A1; --blue:#6FA0FF; --warn:#FFB547; --hot:#FF7A59;
+  --green-soft:rgba(25,230,161,.16); --blue-soft:rgba(111,160,255,.16); --warn-soft:rgba(255,181,71,.16); --hot-soft:rgba(255,122,89,.16);
+  --bubble-me:#12362C; --wall:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1px); --on-green:#06140F;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    color-scheme:light;
+    --bg:#EEF1F5; --surface:#FFFFFF; --raise:#F4F6F9; --border:#D5DDE7; --text:#0B0F14; --muted:#5B6875;
+    --green:#0C9F70; --blue:#2B63D9; --warn:#B8730A; --hot:#D9542F;
+    --green-soft:rgba(12,159,112,.12); --blue-soft:rgba(43,99,217,.12); --warn-soft:rgba(184,115,10,.12); --hot-soft:rgba(217,84,47,.12);
+    --bubble-me:#D6F5E9; --wall:radial-gradient(rgba(11,15,20,.06) 1px,transparent 1px); --on-green:#FFFFFF;
+  }
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#EEF1F5; --surface:#FFFFFF; --raise:#F4F6F9; --border:#D5DDE7; --text:#0B0F14; --muted:#5B6875;
+  --green:#0C9F70; --blue:#2B63D9; --warn:#B8730A; --hot:#D9542F;
+  --green-soft:rgba(12,159,112,.12); --blue-soft:rgba(43,99,217,.12); --warn-soft:rgba(184,115,10,.12); --hot-soft:rgba(217,84,47,.12);
+  --bubble-me:#D6F5E9; --wall:radial-gradient(rgba(11,15,20,.06) 1px,transparent 1px); --on-green:#FFFFFF;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.5;padding-inline:16px;padding-block:12px}
+h1,h2,h3{margin:0;font-family:'Bricolage Grotesque','Segoe UI',sans-serif;letter-spacing:-.015em}
+p{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.5}
+input,textarea{font:inherit;color:var(--text);background:var(--raise);border:1px solid var(--border);border-radius:12px;padding:10px 14px;width:100%}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.shell{max-width:1180px;margin:0 auto;height:calc(100% - 0px);min-height:560px;display:grid;grid-template-columns:320px 1fr;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--surface)}
+@media (max-width:820px){.shell{grid-template-columns:1fr}.shell.view-chat .list{display:none}.shell.view-list .chat{display:none}}
+.shell{grid-template-rows:minmax(0,1fr)}
+.list{display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;min-height:0}
+.chat{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg)}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:15px;letter-spacing:-.02em;flex:none;color:var(--on-green)}
+.av.sm{width:28px;height:28px;font-size:11px}
+.av.green{background:var(--green)}.av.blue{background:var(--blue)}.av.warn{background:var(--warn)}.av.hot{background:var(--hot)}.av.grp{background:linear-gradient(135deg,var(--green),var(--blue))}
+.av.violet{background:#B58CFF}.av.teal{background:#3FD1C8}
+.online{position:relative}.online:after{content:"";position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid var(--surface)}
+.row{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:12px 14px;text-align:left;width:100%;border-bottom:1px solid var(--border);transition:background .12s}
+.row:hover{background:var(--raise)}.row[aria-current="true"]{background:var(--raise)}
+.row .name{font-weight:700;font-size:14.5px}.row .title{font-size:12px;color:var(--muted)}.row .prev{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{min-width:20px;height:20px;border-radius:10px;background:var(--green);color:var(--on-green);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 6px}
+.time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+.feed{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:18px 16px;display:flex;flex-direction:column;gap:6px;background-color:var(--bg);background-image:var(--wall);background-size:18px 18px}
+.bubble{max-width:min(78%,560px);min-width:0;overflow-wrap:anywhere;padding:9px 12px 7px;border-radius:16px;background:var(--surface);border:1px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.bubble.me{margin-left:auto;background:var(--bubble-me);border-color:transparent;border-bottom-right-radius:6px}
+.bubble.them{border-bottom-left-radius:6px}
+.bubble .who{font-size:12px;font-weight:700;margin-bottom:2px}
+.bubble .meta{display:flex;justify-content:flex-end;gap:6px;align-items:center;margin-top:3px}
+.stack{display:flex;gap:8px;align-items:flex-end}
+.sys{align-self:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 12px;margin:6px 0}
+.att{margin-top:8px;border:1px solid var(--border);border-radius:14px;background:var(--raise);overflow:hidden}
+.att .hd{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.att .bd{padding:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}.kv b{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;text-align:right}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;border:1px solid var(--border);color:var(--muted);white-space:nowrap}
+.pill.green{color:var(--green);background:var(--green-soft);border-color:transparent}.pill.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}.pill.blue{color:var(--blue);background:var(--blue-soft);border-color:transparent}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px;border:1px solid var(--border);background:var(--surface)}
+.btn.primary{background:var(--green);color:var(--on-green);border-color:var(--green)}
+.btn.icon{padding:9px;border-radius:50%}
+.quick{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 10px}
+.quick button{border-radius:999px;padding:7px 13px;border:1px solid var(--green);color:var(--green);font-weight:600;font-size:13px;background:var(--surface)}
+.typing{display:inline-flex;gap:3px;align-items:center}.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.sheet{position:absolute;inset:0;background:rgba(11,15,20,.55);display:grid;place-items:center;padding:16px;z-index:5}
+.sheet .box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;width:min(480px,100%);display:flex;flex-direction:column;gap:12px}
+.choice{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:10px;border-radius:12px;border:1px solid var(--border);text-align:left;width:100%}
+.choice:hover{background:var(--raise)}
+.thumb{height:110px;border-radius:10px;background:linear-gradient(135deg,#0B0F14,#1B2531);display:flex;align-items:flex-end;padding:10px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;color:#F2F5F8;letter-spacing:-.02em;line-height:1.05}
+.thumb em{font-style:normal;color:#19E6A1}
+.chart{display:flex;align-items:flex-end;gap:5px;height:70px}.chart i{flex:1;background:var(--blue);border-radius:4px 4px 2px 2px;display:block}.chart i.top{background:var(--green)}
+.reveal{animation:rise .3s ease-out}@keyframes rise{from{opacity:.3;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.typing i,.reveal{animation:none}}
+</style>
+
+<div id="root" style="height:100%"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/htm/3.1.1/htm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.475.0/dist/umd/lucide.min.js"></script>
+<script>
+(function () {
+const { useState, useEffect, useRef } = React;
+const html = htm.bind(React.createElement);
+
+function Icon({ name, size = 18, className = '' }) {
+  const lib = window.lucide; let node = lib && lib.icons && lib.icons[name];
+  if (node && node[0] === 'svg') node = node[2];
+  const c = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', className, 'aria-hidden': true };
+  if (!Array.isArray(node)) return html`<svg ...${c}><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>`;
+  return html`<svg ...${c}>${node.map(([t, a], i) => React.createElement(t, { ...a, key: i }))}</svg>`;
+}
+
+/* ---------- The team (human names, executive titles) ---------- */
+const TEAM = {
+  amara:  { id: 'amara',  name: 'Amara Osei',      first: 'Amara',  title: 'Host · front-desk team leader',            role: 'Host / Concierge',      tone: 'green' },
+  daniel: { id: 'daniel', name: 'Daniel Reyes',    first: 'Daniel', title: 'Insight Lead · profile & positioning',     role: 'Insight Lead',          tone: 'blue' },
+  priya:  { id: 'priya',  name: 'Priya Nair',      first: 'Priya',  title: 'Research Director · audience & market',    role: 'Research Director',     tone: 'violet' },
+  tomas:  { id: 'tomas',  name: 'Tomás Ferreira',  first: 'Tomás',  title: 'Content Strategist · campaigns & posts',   role: 'Content Strategist',    tone: 'warn' },
+  grace:  { id: 'grace',  name: 'Grace Whitfield', first: 'Grace',  title: 'Publishing Manager · execution & schedule', role: 'Publishing Manager',    tone: 'hot' },
+};
+const EXTRA = [
+  { id: 'zainab', name: 'Zainab Al-Farsi', first: 'Zainab', title: 'Engagement Manager · comments, DMs, invites', role: 'Engagement Manager', tone: 'teal', intro: 'Hi Joshua, Zainab here. I run the daily engagement round: replies, likes and invites, all queued for your tap. Yesterday it was 10 likes across 6 profiles; want me to keep that pace?' },
+  { id: 'luca', name: 'Luca Moretti', first: 'Luca', title: 'Video Editor · shorts & captions', role: 'Video Editor', tone: 'blue', intro: 'Luca, video. Both rankings videos are cut at 1.4x with captions and the rank ladder. Send me the next recording and a script and I\'ll have a first cut back the same day.' },
+  { id: 'nadia', name: 'Nadia Karim', first: 'Nadia', title: 'Partnerships Lead · referral partners', role: 'Partnerships Lead', tone: 'violet', intro: 'Nadia here. I\'ll look after partner threads like Asim\'s: brochure follow-ups, call scheduling, referral terms. Nothing sent without you.' },
+  { id: 'ben', name: 'Ben Okafor', first: 'Ben', title: 'Analytics Lead · what\'s working', role: 'Analytics Lead', tone: 'green', intro: 'Ben, analytics. I\'ll read every post at 24 h and 72 h and tell the room what beat baseline. First read: the midday slot is your best bet so far.' },
+];
+const initials = n => n.split(' ').map(x => x[0]).join('').slice(0, 2);
+const now = () => new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+const POSTS = [25, 42, 12, 66, 87, 37, 17, 15, 11, 18];
+
+/* ---------- Attachments shared inline ---------- */
+const TYPE = { post: ['Post', 'FileText', 'A post'], comment: ['Comment', 'MessageSquare', 'A comment'], reply: ['Reply', 'Reply', 'A reply'], dm: ['DM', 'Mail', 'A DM'], connect: ['Connection request', 'UserPlus', 'A connection request'], lead: ['PDF delivery', 'Paperclip', 'A PDF delivery'], apply: ['Job application', 'Briefcase', 'A job application'] };
+const labelOf = it => (TYPE[it.type] || [it.type, 'FileText', it.type])[2];
+
+function Attachment({ a, onDecide }) {
+  const [edit, setEdit] = useState(false);
+  const [draft, setDraft] = useState(a.item ? (a.item.final_text || a.item.text || '') : '');
+  if (a.type === 'item') {
+    const it = a.item; const [lab, ic] = TYPE[it.type] || [it.type, 'FileText']; const st = it.status;
+    return html`<div className="att"><div className="hd"><${Icon} name=${ic} size=${14}/>${lab} · ${it.batch}/${it.id}</div><div className="bd flex flex-col gap-2">
+      ${it.target ? html`<div className="text-[12px] text-muted">${it.target}</div>` : null}
+      ${it.image ? html`<img src=${it.image} alt="" className="rounded-lg max-h-[220px] w-auto object-contain self-start" />` : null}
+      ${edit ? html`<textarea rows="5" aria-label="Edited text" value=${draft} onInput=${e => setDraft(e.target.value)}></textarea>` : html`<div className="text-[13px] whitespace-pre-wrap max-h-[220px] overflow-y-auto">${it.final_text || it.text}</div>`}
+      ${st === 'pending' && !edit ? html`<div className="flex flex-wrap gap-2"><button className="btn primary" onClick=${() => onDecide(it, 'approved')}><${Icon} name="Check" size=${14}/>Approve</button><button className="btn" onClick=${() => setEdit(true)}><${Icon} name="Pencil" size=${14}/>Edit</button><button className="btn" style=${{ color: 'var(--hot)' }} onClick=${() => onDecide(it, 'rejected')}><${Icon} name="X" size=${14}/>Reject</button></div>`
+      : st === 'pending' && edit ? html`<div className="flex flex-wrap gap-2"><button className="btn primary" disabled=${!draft.trim()} onClick=${() => { setEdit(false); onDecide(it, 'edited', draft.trim()); }}><${Icon} name="Check" size=${14}/>Approve with this text</button><button className="btn" onClick=${() => setEdit(false)}>Cancel</button></div>`
+      : st === 'busy' ? html`<span className="pill blue">Recording your decision…</span>`
+      : st === 'error' ? html`<span className="pill warn"><${Icon} name="TriangleAlert" size=${12}/>${it.error}</span>`
+      : it.sent ? html`<span className="pill green"><${Icon} name="CheckCheck" size=${12}/>Sent · ${it.sent_at}</span>`
+      : st === 'rejected' ? html`<span className="pill" style=${{ color: 'var(--hot)' }}><${Icon} name="X" size=${12}/>Rejected ${it.decided_via === 'room' ? 'here' : 'on Telegram'}</span>`
+      : html`<span className="pill green"><${Icon} name="Check" size=${12}/>${st === 'edited' ? 'Approved with your edit' : 'Approved'} ${it.decided_via === 'room' ? '· Telegram card tagged' : 'on Telegram'} · waiting for the engine to send</span>`}
+    </div></div>`;
+  }
+  if (a.type === 'queue') return html`<div className="att"><div className="hd"><${Icon} name="ListChecks" size=${14}/>Approved, waiting to go out</div><div className="bd text-[13px] flex flex-col gap-1">${a.groups.map(g => html`<div key=${g.type} className="flex justify-between gap-3"><span>${g.label}</span><b className="time">${g.n}</b></div>`)}<p className="text-muted text-[12px] mt-1">The engine sends these on its next approved run and marks each one sent.</p></div></div>`;
+  if (a.type === 'livesnap') { const d = a.d, w = d.week || {}; return html`<div className="att"><div className="hd"><${Icon} name="Activity" size=${14}/>Right now · ${d.identity}</div><div className="bd flex flex-col gap-3"><div className="kv"><b>${d.pending}</b><span>waiting for your decision</span><b>${d.queued}</b><span>approved, not yet sent</span><b>${w.like || 0}</b><span>likes this week</span><b>${w.connect || 0}</b><span>invites this week</span><b>${(w.dm || 0) + (w.reply || 0) + (w.comment || 0)}</b><span>replies, comments and DMs this week</span></div><div className="time">From approvals/state.json and leads/engagement-log.csv · ${d.health.telegram ? 'Telegram token found' : 'no Telegram token in this process'} · ${d.health.n8n ? 'n8n decisions URL set' : 'n8n URL not set'}</div></div></div>`; }
+  if (a.type === 'snapshot') return html`<div className="att"><div className="hd"><${Icon} name="Activity" size=${14}/>Today's snapshot · 30 Sep</div><div className="bd flex flex-col gap-3">
+    <div className="kv"><b>17</b><span>connections (+3 invites pending)</span><b>18</b><span>impressions on Monday's series video, 1 reaction, 2 h in</span><b>4</b><span>of your posts reacted to by one person (Steve Igor) yesterday</span><b>12:15</b><span>UK: the slot behind both of your best posts</span></div>
+    <div><div className="chart">${POSTS.map((v, i) => html`<i key=${i} className=${v >= 60 ? 'top' : ''} style=${{ height: Math.max(8, v / 87 * 100) + '%' }}></i>`)}</div><div className="time mt-1">Last 10 posts, oldest → newest. Green = the two posted at midday.</div></div>
+  </div></div>`;
+  if (a.type === 'brief') return html`<div className="att"><div className="hd"><${Icon} name="Radar" size=${14}/>${a.title}</div><div className="bd"><ul className="m-0 pl-4 flex flex-col gap-1.5 text-[13px]">${a.items.map((x, i) => html`<li key=${i}>${x}</li>`)}</ul></div></div>`;
+  if (a.type === 'video') return html`<div className="att"><div className="hd"><${Icon} name="Clapperboard" size=${14}/>Ready for approval</div><div className="bd flex flex-col gap-3">
+    <div className="thumb">Your leads are going <em>&nbsp;cold.</em></div>
+    <div className="text-[13px]"><b>4 ways operators handle Meta ad leads</b> · 50 s · captions on · thumbnail done<div className="text-muted">Caption ends with the "WORKFLOW" DM ask. Proposed slot: Fri 2 Oct, 12:15 UK.</div></div>
+    ${a.status === 'approved' ? html`<span className="pill green"><${Icon} name="Check" size=${12}/>Approved · scheduled Fri 12:15</span>`
+    : a.status === 'edit' ? html`<span className="pill warn"><${Icon} name="Pencil" size=${12}/>Edit requested · Tomás is on it</span>`
+    : html`<div className="flex flex-wrap gap-2"><button className="btn primary" onClick=${() => onDecide('approved')}><${Icon} name="Check" size=${14}/>Approve</button><button className="btn" onClick=${() => onDecide('edit')}><${Icon} name="Pencil" size=${14}/>Ask for changes</button></div>`}
+  </div></div>`;
+  if (a.type === 'schedule') return html`<div className="att"><div className="hd"><${Icon} name="CalendarDays" size=${14}/>This week</div><div className="bd flex flex-col gap-2 text-[13px]">
+    ${a.items.map((x, i) => html`<div key=${i} className="flex items-start gap-3"><span className="time w-[92px] flex-none pt-0.5">${x.when}</span><span className="flex-1">${x.what}</span><span className=${'pill ' + x.tone}>${x.state}</span></div>`)}
+  </div></div>`;
+  if (a.type === 'ideas') return html`<div className="att"><div className="hd"><${Icon} name="Lightbulb" size=${14}/>Three angles for this week</div><div className="bd flex flex-col gap-2 text-[13px]">${a.items.map((x, i) => html`<div key=${i} className="flex gap-3"><span className="av sm warn">${i + 1}</span><span><b>${x.h}</b><div className="text-muted">${x.why}</div></span></div>`)}</div></div>`;
+  return null;
+}
+
+/* ---------- App ---------- */
+function App() {
+  const [team, setTeam] = useState(Object.values(TEAM));
+  const [chats, setChats] = useState({ room: [] , amara: [], daniel: [], priya: [], tomas: [], grace: [] });
+  const [unread, setUnread] = useState({});
+  const [current, setCurrent] = useState('room');
+  const [mobileView, setMobileView] = useState('list');
+  const [typing, setTyping] = useState({});
+  const [text, setText] = useState('');
+  const [quick, setQuick] = useState([]);
+  const [sheet, setSheet] = useState(false);
+  const [video, setVideo] = useState('pending');
+  const [live, setLive] = useState(null);       // null = checking, false = demo data, object = connected to the gate
+  const liveRef = useRef(null); liveRef.current = live;
+  const shown = useRef({});                     // "batch/id" -> last status shown on its card
+  const cardSig = useRef({});                   // "livesnap"/"queue" -> last data signature shown
+  const seenAt = useRef(new Set());             // inbox message stamps already displayed
+  const sentAt = useRef({});                    // stamps of messages typed here -> chat they were typed in
+  const repliedAt = useRef(new Set());
+  const roundDone = useRef(false);
+  const pageLoad = useRef(Date.now());
+  const key = it => it.batch + '/' + it.id;
+  const api = async (path, body) => {
+    const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 4000);
+    try {
+      const r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctrl.signal } : { signal: ctrl.signal });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok && !j.error && !j.output) throw new Error('HTTP ' + r.status);
+      return j;
+    } finally { clearTimeout(to); }
+  };
+  const timers = useRef([]);
+  const feedEnd = useRef(null);
+  const currentRef = useRef(current);
+  currentRef.current = current;
+
+  const after = (ms, fn) => timers.current.push(setTimeout(fn, ms));
+  const ME = () => (liveRef.current && liveRef.current.owner_first) || 'Joshua';
+  const push = (chat, msg) => {
+    const body = typeof msg.body === 'string' ? msg.body.replace(/\bJoshua\b/g, ME()) : msg.body;   // scripted lines address the signed-in owner
+    setChats(c => ({ ...c, [chat]: [...(c[chat] || []), { ...msg, body, t: now(), id: Math.random().toString(36).slice(2) }] }));
+    if (msg.from !== 'me' && msg.from !== 'sys' && currentRef.current !== chat) setUnread(u => ({ ...u, [chat]: (u[chat] || 0) + 1 }));
+  };
+  const speak = (chat, from, body, delay, att) => {
+    after(delay, () => setTyping(t => ({ ...t, [chat]: from })));
+    after(delay + Math.min(2200, 500 + body.length * 14), () => { setTyping(t => ({ ...t, [chat]: null })); push(chat, { from, body, att }); });
+    return delay + Math.min(2200, 500 + body.length * 14) + 350;
+  };
+  const sys = (chat, body, delay = 0) => after(delay, () => push(chat, { from: 'sys', body }));
+  const person = id => team.find(p => p.id === id) || TEAM[id];
+
+  const feedRef = useRef(null);
+  const stickToBottom = useRef(true);   // only auto-scroll while the viewer is already at the bottom
+  useEffect(() => {
+    if (stickToBottom.current) feedEnd.current && feedEnd.current.scrollIntoView({ block: 'end' });
+  }, [chats, typing, current]);
+  useEffect(() => { stickToBottom.current = true; }, [current]);   // switching chats always lands at the bottom
+  useEffect(() => {
+    let cancelled = false;
+    const greet = () => {
+      speak('room', 'amara', "Welcome back Joshua. Would you like to see what's happening with your LinkedIn space today?", 700);
+      after(2600, () => setQuick(['Yes, show me', 'Just the numbers', 'Anything urgent?']));
+    };
+    api('/api/room/state').then(d => {
+      if (cancelled || !d || !d.tenant) throw new Error('no gate');
+      d.inbox.forEach(m => seenAt.current.add(m.at));
+      if (Array.isArray(d.team) && d.team.length) setTeam(d.team);   // the tenant's own names, titles and colours
+      setLive(d);
+      sys('room', `Main Strategy Room · connected to the approval gate · ${d.identity} · ${d.pending.length} waiting on you`);
+      greet();
+    }).catch(() => {
+      if (cancelled) return;
+      setLive(false);
+      sys('room', 'Main Strategy Room · Amara, Daniel, Priya, Tomás and Grace are here · demo data');
+      greet();
+    });
+    return () => { cancelled = true; timers.current.forEach(clearTimeout); };
+  }, []);
+
+  /* --- live mode: keep the room in step with the gate (Telegram taps, engine sends, replies) --- */
+  useEffect(() => {
+    if (!live) return;
+    const inflight = { v: false };                 // never stack a new poll on top of a slow one
+    const id = setInterval(async () => {
+      if (inflight.v) return;
+      inflight.v = true;
+      let d; try { d = await api('/api/room/state'); } catch (e) { d = null; }
+      inflight.v = false;
+      if (!d || !d.tenant) return;
+      setLive(d);
+      for (const it of [...d.pending, ...d.queued, ...d.recent]) {
+        const k = key(it), sig = it.status + '|' + it.sent;
+        if (shown.current[k] && shown.current[k] !== sig) { updateItem(it); shown.current[k] = sig; }
+      }
+      if (roundDone.current) for (const it of d.pending) {
+        const k = key(it);
+        if (!shown.current[k]) { shown.current[k] = 'pending|false'; speak('room', it.type === 'post' ? 'tomas' : 'grace', `New for you: ${labelOf(it).toLowerCase()} from the ${it.batch} batch.`, 200, { type: 'item', item: it }); }
+      }
+      // Summary cards (Daniel's numbers, Grace's queue) are point-in-time snapshots when posted;
+      // keep the MOST RECENT one of each honest by refreshing it in place — but ONLY when the
+      // underlying numbers actually changed. Touching chat state on every poll regardless (the
+      // original version of this) forces the feed to jump to the bottom every 3s, which is what
+      // made approving anything above the fold impossible.
+      if (roundDone.current) {
+        const livesnapD = { identity: d.identity, pending: d.pending.length, queued: d.queued.length, week: d.engagement, health: d.health };
+        const livesnapSig = JSON.stringify(livesnapD);
+        if (cardSig.current.livesnap !== livesnapSig) { cardSig.current.livesnap = livesnapSig; updateLatestCard('livesnap', { type: 'livesnap', d: livesnapD }); }
+        const counts = {}; d.queued.forEach(it => { counts[it.type] = (counts[it.type] || 0) + 1; });
+        const groups = Object.entries(counts).map(([type, n]) => ({ type, n, label: (TYPE[type] || [type])[0] + (n === 1 ? '' : 's') }));
+        const queueSig = JSON.stringify(groups);
+        if (cardSig.current.queue !== queueSig) { cardSig.current.queue = queueSig; updateLatestCard('queue', { type: 'queue', groups }); }
+      }
+      for (const m of d.inbox) {
+        if (seenAt.current.has(m.at)) {
+          const chat = sentAt.current[m.at];
+          if (chat && m.room_reply && !repliedAt.current.has(m.at)) { repliedAt.current.add(m.at); push(chat, { from: 'amara', body: m.room_reply }); }
+          continue;
+        }
+        seenAt.current.add(m.at);
+        if (m.source !== 'room' && Date.parse(m.at) > pageLoad.current - 60000) push('amara', { from: 'me', body: m.text, via: 'Telegram' });
+      }
+    }, 3000);                                      // 3 s: near-instant back-and-forth on localhost
+    return () => clearInterval(id);
+  }, [!!live]);
+
+  /* --- the morning round in the group --- */
+  const morningRound = () => {
+    if (liveRef.current) return liveRound();
+    let d = speak('room', 'amara', "Here's the short version: three things moved since yesterday. The team will drop the details in as cards so you can skim. Daniel, you first.", 300);
+    d = speak('room', 'daniel', "Morning Joshua. Nothing alarming, one thing worth fixing today: the open-to-work frame is still on your photo, and it reads as job-hunting to the founders you're pitching. The rest is in the snapshot.", d, { type: 'snapshot' });
+    d = speak('room', 'priya', "From the audience side: the thread you replied in yesterday is still the busiest in your niche, and the line people keep repeating is Sam Wood's, \"the human in the loop may soon become the bottleneck.\" You have a working answer to that, which is rare in there.", d, { type: 'brief', title: 'What the audience is saying', items: ['Review is becoming the bottleneck: most-replied comment, 81-comment thread', 'Authority checked at the moment the agent acts (Todd, Kunal, Ahmed all said a version of it)', 'Deven posted "10 WhatsApp AI agents you can build" yesterday: overlaps your WhatsApp-CRM angle, so comment there, don\'t copy it'] });
+    d = speak('room', 'tomas', "Friday's video is cut and captioned: the four ways operators handle Meta ad leads, 50 seconds, ends on \"building an operation around it\". Thumbnail and caption are done. It needs your yes.", d, { type: 'video', status: video });
+    d = speak('room', 'grace', "Schedule for the week below. Wednesday's carousel is still in Tomás's hands, Thursday is approved, Friday waits on you. Nothing leaves without your tap, same as always.", d, { type: 'schedule', items: [{ when: 'Wed 30 · 08:30', what: 'Put a number on manual work (carousel)', state: 'drafting', tone: 'blue' }, { when: 'Thu 1 Oct · 09:00', what: 'My AI agent refused to work this week', state: 'approved', tone: 'green' }, { when: 'Fri 2 Oct · 12:15', what: '4 ways operators handle Meta ad leads (video)', state: 'your call', tone: 'warn' }] });
+    d = speak('room', 'amara', "That's the room for today. Say the word on Friday's video, or message any of us directly if you'd rather go one-to-one.", d);
+    after(d + 600, () => setQuick(['Approve Friday\'s video', 'Post ideas for next week', 'What should I fix on my profile?']));
+    speak('daniel', 'daniel', "Quick one just for you, Joshua: I can draft the headline swap alongside removing the open-to-work frame, two lines, your voice. Want it?", d + 1200);
+  };
+
+  const decideVideo = (status) => {
+    setVideo(status);
+    setChats(c => { const n = {}; for (const k in c) n[k] = c[k].map(m => m.att && m.att.type === 'video' ? { ...m, att: { ...m.att, status } } : m); return n; });
+    if (status === 'approved') { sys('room', 'Approval logged · Friday video · ' + now(), 200); speak('room', 'grace', "Locked in: Friday 2 October, 12:15 UK. I'll post it and drop the first-hour numbers back in here.", 500); speak('room', 'tomas', "Thanks Joshua. I'll queue the series Part 1 script for you to look at next.", 2600); }
+    else { speak('room', 'tomas', "Tell me what to change, hook, order or caption, and I'll send a revised cut back here.", 400); }
+    setQuick([]);
+  };
+
+  /* --- live mode: the same round, from the engine's real state --- */
+  const liveRound = () => {
+    const d = liveRef.current;
+    const adminRoom = d.tenant === 'josh-linkedin';
+    let t = speak('room', 'amara', `Here's where things stand, straight from the engine: ${d.pending.length} item${d.pending.length === 1 ? '' : 's'} waiting on you and ${d.queued.length} already approved and queued. ${person('daniel').first} first.`, 300);
+    t = speak('room', 'daniel', 'Numbers as the engine has them this minute, nothing summarised.', t, { type: 'livesnap', d: { identity: d.identity, pending: d.pending.length, queued: d.queued.length, week: d.engagement, health: d.health } });
+    t = adminRoom
+      ? speak('room', 'priya', "Audience read is unchanged since Monday's listening round: the line people keep repeating in your niche is \"the human in the loop may soon become the bottleneck\", and you're one of the few in that thread with a working answer.", t, { type: 'brief', title: 'What the audience is saying · insights/listening-2026-09-28.md', items: ['Review is becoming the bottleneck: most-replied comment, 81-comment thread', 'Authority checked at the moment the agent acts', 'Deven\'s "10 WhatsApp AI agents" overlaps your WhatsApp-CRM angle: comment there, don\'t copy it'] })
+      : speak('room', 'priya', d.pillars && d.pillars.length ? `Your pillars are on my desk: ${d.pillars.join(' · ')}. The audience research starts once we've run your profile audit together; I won't bring you guesses before then.` : "Audience research starts once we've run your profile audit together; nothing to report yet.", t);
+    if (d.pending.length) {
+      t = speak('room', 'grace', `${d.pending.length} need your call. One card each. The buttons write straight to the approval gate and tag the matching card on your Telegram, so the two never disagree.`, t);
+      d.pending.forEach(it => { shown.current[key(it)] = 'pending|false'; t = speak('room', it.type === 'post' ? 'tomas' : 'grace', it.type === 'post' ? 'A post for your review:' : `${labelOf(it)} from the engagement round:`, t, { type: 'item', item: it }); });
+    } else {
+      t = speak('room', 'grace', 'Nothing is waiting on your decision right now.', t);
+    }
+    if (d.queued.length) {
+      const counts = {}; d.queued.forEach(it => { counts[it.type] = (counts[it.type] || 0) + 1; });
+      const groups = Object.entries(counts).map(([type, n]) => ({ type, n, label: (TYPE[type] || [type])[0] + (n === 1 ? '' : 's') }));
+      t = speak('room', 'grace', 'Already approved and waiting for the engine to send:', t, { type: 'queue', groups });
+    }
+    t = speak('room', 'amara', "That's the room. Anything you type here lands in the same inbox the assistant reads, and the reply comes back into this thread.", t);
+    after(t, () => { roundDone.current = true; });
+    after(t + 300, () => setQuick(['Just the numbers', 'Post ideas for next week', 'What should I fix on my profile?']));
+  };
+  const updateItem = (it) => setChats(c => { const n = {}; for (const k in c) n[k] = c[k].map(m => m.att && m.att.type === 'item' && key(m.att.item) === key(it) ? { ...m, att: { ...m.att, item: it } } : m); return n; });
+  // Refreshes only the LATEST message of a given summary-card type in the room thread, in
+  // place, so an old "numbers" or "queue" bubble never keeps showing stale figures.
+  const updateLatestCard = (type, att) => setChats(c => {
+    const room = c.room || [];
+    let idx = -1;
+    for (let i = room.length - 1; i >= 0; i--) { if (room[i].att && room[i].att.type === type) { idx = i; break; } }
+    if (idx === -1) return c;
+    const copy = room.slice(); copy[idx] = { ...copy[idx], att };
+    return { ...c, room: copy };
+  });
+  const decideItem = async (it, decision, text) => {
+    updateItem({ ...it, status: 'busy' });
+    try {
+      const r = await api('/api/room/decide', { tenant: liveRef.current.tenant, batch: it.batch, item: it.id, decision, text });
+      if (!r.ok) throw new Error(r.error || r.output || 'the gateway refused');
+      const done = { ...it, status: decision, final_text: decision === 'edited' ? text : it.final_text, decided_via: 'room', decided_at: new Date().toISOString() };
+      updateItem(done); shown.current[key(it)] = decision + '|false';
+      sys('room', `${decision === 'rejected' ? 'Rejected' : decision === 'edited' ? 'Approved with edit' : 'Approved'} · ${it.batch}/${it.id} · written to state.json · ${r.tagged ? 'Telegram card tagged' : 'no Telegram card to tag'}`);
+      if (decision !== 'rejected') speak('room', 'grace', 'Logged. The engine sends it on its next approved run and marks it sent; the card here will update when it does.', 300);
+    } catch (e) {
+      updateItem({ ...it, status: 'error', error: String(e.message || e) });
+      after(5000, () => updateItem({ ...it, status: 'pending' }));
+    }
+  };
+  const deliver = async (chat, body) => {
+    try {
+      const r = await api('/api/room/message', { tenant: liveRef.current.tenant, text: body });
+      if (!r.ok || !r.at) throw new Error(r.error || 'not saved');
+      sentAt.current[r.at] = chat; seenAt.current.add(r.at);
+      push(chat, { from: 'sys', body: 'Delivered to the team inbox · the assistant answers on its next check, usually within a minute' });
+    } catch (e) { push(chat, { from: 'sys', body: 'Not delivered: ' + (e.message || e) }); }
+  };
+
+  /* --- replies (keyword-led, per chat) --- */
+  const reply = (chat, textIn) => {
+    const q = textIn.toLowerCase();
+    const inRoom = chat === 'room';
+    if (liveRef.current && /approve|reject|go ahead/.test(q)) return speak(chat, 'amara', "Use the buttons on the card itself, so the decision is logged against that exact item and your Telegram card updates with it.", 300);
+    if (liveRef.current && liveRef.current.tenant !== 'josh-linkedin' && !/number|snapshot|stats/.test(q)) return deliver(chat, textIn);   // other tenants: no scripted answers about Josh's account
+    if (!liveRef.current && /approve|yes.*(video|friday)|go ahead/.test(q) && video === 'pending') return decideVideo('approved');
+    if (/show me|what.?s happening|update|today/.test(q) && inRoom && chats.room.length < 4) return morningRound();
+    if (/number|snapshot|stats|impression/.test(q)) { const L = liveRef.current; return speak(chat, inRoom ? 'daniel' : chat, "Here's where the account stands right now.", 400, L ? { type: 'livesnap', d: { identity: L.identity, pending: L.pending.length, queued: L.queued.length, week: L.engagement, health: L.health } } : { type: 'snapshot' }); }
+    if (/idea|next week|post about|angle/.test(q)) return speak(chat, inRoom ? 'tomas' : chat, "Three angles I'd back this week, all from what your audience actually said, not from a trend list:", 400, { type: 'ideas', items: [{ h: 'The human in the loop will become the bottleneck. Here\'s how I keep mine fast.', why: 'Your own approval gate, answering the most-replied comment in your niche.' }, { h: 'Check the agent when it acts, not when it logs in.', why: 'Pairs with Thursday\'s "my agent refused to work" story.' }, { h: 'Your team is about to manage agents. Decide who owns the mistake first.', why: 'Owner table: agent owns / human approves / human only.' }] });
+    if (/schedule|when|slot|time|friday|calendar/.test(q)) return speak(chat, inRoom ? 'grace' : chat, "Your best two posts both went out at 12:15 UK, so that's the slot I'm testing on Friday. Thursday stays at 09:00. I'll move anything you want; nothing posts without your tap.", 400);
+    if (/audience|research|competitor|gcc|market|who/.test(q)) return speak(chat, inRoom ? 'priya' : chat, "The people responding to you right now are ops-minded founders and a few governance leads, mostly UK and Gulf. If you want the GCC first, I'll re-weight the next brief that way and tell Tomás.", 400);
+    if (/profile|headline|fix|open to work|photo|banner/.test(q)) return speak(chat, inRoom ? 'daniel' : chat, "Two fixes, in order: 1) take the open-to-work frame off the photo; 2) swap the headline for a promise instead of a keyword list, something like \"I turn manual operations into AI systems that run themselves, with a human veto built in.\" Your banner already says the first half.", 400);
+    if (/asim|partner|brochure|whatsapp/.test(q)) return speak(chat, inRoom ? 'amara' : chat, "Asim's on WhatsApp with you now and has the brochure. When you've picked a call time, tell Grace and she'll hold that slot clear of posts.", 400);
+    if (/thank|great|nice|love/.test(q)) return speak(chat, inRoom ? 'amara' : chat, "Anytime, Joshua. We'll keep it short and only bring you what needs a decision.", 300);
+    if (liveRef.current) return deliver(chat, textIn);
+    const who = inRoom ? 'amara' : chat;
+    return speak(chat, who, inRoom ? `On it, Joshua. I'll route that to the right person and bring the answer back here.` : `Noted, Joshua. I'll come back to you on that in this thread so it doesn't get lost in the room.`, 400);
+  };
+
+  const send = (t) => {
+    const body = (t ?? text).trim(); if (!body) return;
+    setText(''); setQuick([]);
+    push(current, { from: 'me', body });
+    reply(current, body);
+  };
+
+  const open = (id) => {
+    setCurrent(id); setMobileView('chat'); setUnread(u => ({ ...u, [id]: 0 })); setQuick([]);
+    if (id !== 'room' && !(chats[id] || []).length) {
+      const p = person(id);
+      const intro = { daniel: "Hi Joshua, Daniel here. This is our private line: profile, positioning, what the numbers say. Ask me anything you'd rather not put in the room.", priya: "Priya here. Use this thread for audience questions and anything competitive you'd rather keep between us.", tomas: "Tomás here. Send me rough ideas, voice notes, half-thoughts. I'll turn them into posts and bring the good ones to the room.", grace: "Grace here. Slots, timing, what's queued, what's live. If you ever need something pulled, tell me here first.", amara: "Amara here, just us. If the room ever feels like too much, tell me and I'll change how the team reports to you." }[id];
+      speak(id, id, intro || p.intro, 300);
+    }
+  };
+
+  const addAgent = (a) => {
+    if (team.find(p => p.id === a.id)) { setSheet(false); return; }
+    setTeam(t => [...t, a]); setChats(c => ({ ...c, [a.id]: [] })); setSheet(false);
+    sys('room', `${a.name} joined the room · ${a.role}`);
+    speak('room', 'amara', `Everyone, ${a.first} is joining as ${a.role}. ${a.first}, say hello.`, 400);
+    speak('room', a.id, a.intro, 2600);
+  };
+
+  const cur = current === 'room' ? null : person(current);
+  const feed = chats[current] || [];
+  const typer = typing[current] && person(typing[current]);
+  const lastPreview = id => { const m = (chats[id] || []).filter(x => x.from !== 'sys').slice(-1)[0]; return m ? (m.from === 'me' ? 'You: ' : (id === 'room' ? person(m.from).first + ': ' : '')) + m.body : (id === 'room' ? 'Your whole team, one thread' : person(id).title); };
+
+  return html`
+    <div className=${'shell view-' + mobileView} style=${{ position: 'relative' }}>
+      <aside className="list">
+        <div className="flex items-center gap-2 p-4 border-b border-line">
+          <div className="av grp"><${Icon} name="Bot" size=${20}/></div>
+          <div className="min-w-0"><h1 className="text-[17px] font-extrabold leading-tight">Githaf team</h1><p className="text-[12px] text-muted truncate">${live ? `${live.identity} · gate connected` : "Joshua's LinkedIn · everyone online"}</p></div>
+          <button className="btn icon ml-auto" title="Add agent to conversation" aria-label="Add agent to conversation" onClick=${() => setSheet(true)}><${Icon} name="UserPlus" size=${17}/></button>
+          ${live ? html`<button className="btn icon" title="Sign out" aria-label="Sign out" onClick=${async () => { try { await fetch('/api/logout', { method: 'POST' }); } catch (e) {} location.href = '/login'; }}><${Icon} name="LogOut" size=${16}/></button>` : null}
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <button className="row" aria-current=${current === 'room'} onClick=${() => open('room')}>
+            <div className="av grp online"><${Icon} name="Users" size=${18}/></div>
+            <div className="min-w-0"><div className="name">Main Strategy Room</div><div className="prev">${lastPreview('room')}</div></div>
+            <div className="flex flex-col items-end gap-1"><span className="time">${(chats.room.slice(-1)[0] || {}).t || ''}</span>${unread.room ? html`<span className="badge">${unread.room}</span>` : null}</div>
+          </button>
+          <div className="px-4 pt-3 pb-1 text-[11px] font-mono font-bold tracking-[.12em] uppercase text-muted">Direct messages</div>
+          ${team.map(p => html`<button key=${p.id} className="row" aria-current=${current === p.id} onClick=${() => open(p.id)}>
+            <div className=${'av online ' + p.tone}>${initials(p.name)}</div>
+            <div className="min-w-0"><div className="name">${p.name}</div><div className="prev">${lastPreview(p.id)}</div></div>
+            <div className="flex flex-col items-end gap-1"><span className="time">${((chats[p.id] || []).slice(-1)[0] || {}).t || ''}</span>${unread[p.id] ? html`<span className="badge">${unread[p.id]}</span>` : null}</div>
+          </button>`)}
+        </div>
+        <button className="m-3 btn justify-center" onClick=${() => setSheet(true)}><${Icon} name="UserPlus" size=${15}/>Add agent to conversation</button>
+      </aside>
+
+      <section className="chat">
+        <header className="flex items-center gap-3 px-4 py-3 border-b border-line bg-surface">
+          <button className="btn icon md:hidden" aria-label="Back to chats" onClick=${() => setMobileView('list')}><${Icon} name="ArrowLeft" size=${17}/></button>
+          ${cur ? html`<div className=${'av online ' + cur.tone}>${initials(cur.name)}</div>` : html`<div className="flex -space-x-2">${team.slice(0, 5).map(p => html`<div key=${p.id} className=${'av sm ' + p.tone} style=${{ boxShadow: '0 0 0 2px var(--surface)' }}>${initials(p.name)}</div>`)}</div>`}
+          <div className="min-w-0"><h2 className="text-[15.5px] font-bold leading-tight">${cur ? cur.name : 'Main Strategy Room'}</h2><p className="text-[12px] text-muted truncate">${cur ? cur.title + ' · online' : `${team.length} in the room · all online`}</p></div>
+          <div className="ml-auto flex gap-2 flex-wrap justify-end">
+            ${live ? html`<span className="pill green" title="Reading approvals/state.json through the local dashboard server"><${Icon} name="Plug" size=${12}/>Live · ${live.tenant}</span>` : live === false ? html`<span className="pill" title="Open http://127.0.0.1:8765/room to connect to the real gate">Demo data</span>` : null}
+            <span className="pill green"><span className="w-2 h-2 rounded-full bg-green inline-block"></span>${cur ? 'Private' : 'Room open'}</span>
+          </div>
+        </header>
+
+        <div className="feed" ref=${feedRef} onScroll=${() => {
+          const el = feedRef.current; if (!el) return;
+          stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;   // "near the bottom"
+        }}>
+          ${feed.map(m => m.from === 'sys' ? html`<div key=${m.id} className="sys reveal">${m.body}</div>` : m.from === 'me'
+            ? html`<div key=${m.id} className="bubble me reveal"><div>${m.body}</div><div className="meta">${m.via ? html`<span className="time">via ${m.via}</span>` : null}<span className="time">${m.t}</span><${Icon} name="CheckCheck" size=${14} className="text-green"/></div></div>`
+            : html`<div key=${m.id} className="stack reveal">${current === 'room' ? html`<div className=${'av sm ' + person(m.from).tone}>${initials(person(m.from).name)}</div>` : null}
+                <div className="bubble them">${current === 'room' ? html`<div className="who" style=${{ color: `var(--${person(m.from).tone === 'violet' ? 'blue' : person(m.from).tone === 'teal' ? 'green' : person(m.from).tone})` }}>${person(m.from).name}</div>` : null}<div>${m.body}</div>${m.att ? html`<${Attachment} a=${m.att} onDecide=${m.att.type === 'item' ? decideItem : decideVideo}/>` : null}<div className="meta"><span className="time">${m.t}</span></div></div></div>`)}
+          ${typer ? html`<div className="stack"><div className=${'av sm ' + typer.tone}>${initials(typer.name)}</div><div className="bubble them"><span className="typing"><i></i><i></i><i></i></span><span className="time ml-2">${typer.first} is typing</span></div></div>` : null}
+          <div ref=${feedEnd}></div>
+        </div>
+
+        ${quick.length && current === 'room' ? html`<div className="quick">${quick.map(q => html`<button key=${q} onClick=${() => send(q)}>${q}</button>`)}</div>` : null}
+        <form className="flex items-center gap-2 p-3 border-t border-line bg-surface" onSubmit=${e => { e.preventDefault(); send(); }}>
+          <button type="button" className="btn icon" title="Attach a file, voice note or screenshot" aria-label="Attach"><${Icon} name="Paperclip" size=${17}/></button>
+          <input id="composer" aria-label="Message" placeholder=${cur ? `Message ${cur.first}…` : live ? 'Message the room… it lands in the team inbox' : 'Message the room… try "post ideas" or "approve"'} value=${text} onInput=${e => setText(e.target.value)} />
+          <button type="submit" className="btn icon primary" aria-label="Send" disabled=${!text.trim()}><${Icon} name="Send" size=${16}/></button>
+        </form>
+      </section>
+
+      ${sheet ? html`<div className="sheet" onClick=${() => setSheet(false)}><div className="box" onClick=${e => e.stopPropagation()}>
+        <div className="flex items-center justify-between"><h2 className="text-[17px] font-extrabold">Add an agent to the room</h2><button className="btn icon" aria-label="Close" onClick=${() => setSheet(false)}><${Icon} name="X" size=${16}/></button></div>
+        <p className="text-[13px] text-muted">Predefined roles. They join the room, introduce themselves, and get their own DM thread.</p>
+        ${EXTRA.map(a => { const added = !!team.find(p => p.id === a.id); return html`<button key=${a.id} className="choice" disabled=${added} onClick=${() => addAgent(a)}><div className=${'av ' + a.tone}>${initials(a.name)}</div><div><div className="font-bold">${a.name}</div><div className="text-[12px] text-muted">${a.title}</div></div><span className=${'pill ' + (added ? 'green' : '')}>${added ? 'in the room' : 'add'}</span></button>`; })}
+      </div></div>` : null}
+    </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+})();
+</script>
